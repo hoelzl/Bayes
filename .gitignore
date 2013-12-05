@@ -1,0 +1,32 @@
+# Backup files
+*~
+.#*
+*#
+# Lisp output
+*.d*fsl
+*.fas
+*.fasl
+*.sse2f
+# TeX output
+*.aux
+*.bbl
+*.blg
+*.log
+*.nav
+*.out
+*.rel
+*.snm
+*.toc
+*.synctex*
+.DS_Store
+# Some files and directories
+Readme.tex
+Readme.pdf
+Readme.html
+Junk/
+Patches/
+Temp/
+Sources/Junk/
+Sources/Patches/
+Sources/Temp/
+
