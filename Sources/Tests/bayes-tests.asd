@@ -1,6 +1,6 @@
 ;;;; bayes-tests.asd
 
-(asdf:defsystem #:bayes
+(asdf:defsystem #:bayes-tests
   :serial t
   :description "Tests for the Bayes package."
   :version "0.0.1"
@@ -9,5 +9,7 @@
   :depends-on (#:alexandria
                #:gbbopen
                #:gbbopen-tools
-               #:bayes)
-  :components ((:file "package")))
+               #:bayes
+               #:fiveam)
+  :components ((:file "package")
+               (:file "suites")))
