@@ -9,4 +9,5 @@
   :depends-on (#:alexandria
                #:gbbopen
                #:gbbopen-tools)
-  :components ((:file "package")))
+  :components ((:file "package")
+               (:file "utilities")))

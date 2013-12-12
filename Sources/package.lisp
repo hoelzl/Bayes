@@ -11,7 +11,7 @@
                           #:xor)
   (:use #:common-lisp
         #:alexandria #:gbbopen-tools)
-  #+ (or) (:export))
+  (:export))
 
 (defpackage #:bayes-user
   ;; Resolve conflicts between GBBOpen and Alexandria
@@ -26,3 +26,4 @@
         #:alexandria #:bayes #:gbbopen-tools)
   #+define-nicknames-for-poem-packages
   (:nicknames #:bu))
+
