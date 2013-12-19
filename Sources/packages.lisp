@@ -8,9 +8,33 @@
 (in-package #:common-lisp-user)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
+
+(defparameter *bayes-test-exports*
+  '(#:node-potential-dimensions
+    #:process-class-slots
+    #:process-class-slot
+    #:process-class-options))
+
 (defparameter *bayes-utilities-exports*
-  '(#:define-class))
-(defparameter *bayes-exports* '())
+  '(#:define-class
+    #:equals
+    #:values-for-type))
+
+(defparameter *bayes-exports*
+  '(#:discrete-node
+    #:make-discrete-node
+    #:make-node
+    #:node
+    #:node-discrete-p
+    #:node-domain
+    #:node-name
+    #:node-kind
+    #:node-parents
+    #:node-potential
+    #:node-probability
+    #:node-type
+    #:node-values
+    #:potential))
 )
 
 (defpackage #:bayes-implementation
@@ -21,6 +45,7 @@
   (:use #:common-lisp
         #:alexandria #:c2mop)
   (:nicknames #:bayes-impl)
+  (:export . #.*bayes-test-exports*)
   (:export . #.*bayes-utilities-exports*)
   (:export . #.*bayes-exports*))
 

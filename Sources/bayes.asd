@@ -9,4 +9,6 @@
   :depends-on (#:alexandria #:closer-mop)
   :components ((:file "packages")
                (:file "macros")
-               (:file "utilities")))
+               (:file "utilities")
+               (:file "potentials")
+               (:file "nodes")))

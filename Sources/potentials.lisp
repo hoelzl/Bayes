@@ -7,8 +7,5 @@
 
 (in-package #:bayes-implementation)
 
-(defgeneric equals (lhs rhs)
-  (:documentation "Compare LHS and RHS for equality.
-The default comparison is EQUAL.")
-  (:method (lhs rhs)
-    (equal lhs rhs)))
+(define-class potential ()
+  ())

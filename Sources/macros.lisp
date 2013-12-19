@@ -13,7 +13,7 @@
   (mapcar (process-class-slot class-name options) slots))
 
 (defun process-class-slot (class-name options)
-  (let* ((conc-name (or (second (assoc :conc-name options)) class-name)))
+  (let ((conc-name (or (second (assoc :conc-name options)) class-name)))
     (lambda (slot)
       (destructuring-bind (slot-name &rest args &key initarg accessor reader writer
                                      &allow-other-keys)
@@ -22,9 +22,19 @@
           (setf args
                 (list* :initarg (make-keyword slot-name) args)))
         (unless (or accessor reader writer)
-          (setf args 
+          (setf args
                 (list* :accessor (format-symbol *package* "~A-~A" conc-name slot-name) args)))
         (cons slot-name args)))))
+
+(defparameter *options-to-remove* '(:conc-name :structure-class))
+
+(defun process-class-options (class-name options)
+  (declare (ignore class-name))
+  (let ((result '()))
+    (dolist (option options)
+      (when (not (member (first option) *options-to-remove*))
+        (push option result)))
+    (nreverse result)))
 
 ;;; TODO: This does not work for inherited initargs.
 (defun extract-class-initargs (slots)
@@ -68,7 +78,7 @@
         `(progn
            (defclass ,name ,supers
              ,(process-class-slots name options slots)
-             ,@options)
+             ,@(process-class-options name options))
            ;; TODO: Define a type predicate for classes (maybe use the correct convention for
            ;; the -P postfix and explicitly define the name of the type predicate for th struct
            ;; case as well.
@@ -76,4 +86,6 @@
            ;; TODO: Process initargs correctly and build a form that does not use apply.
            (defun ,(symbolicate '#:make- name)
                (&rest args &key ,@(extract-class-initargs slots) &allow-other-keys)
-             (apply #'make-instance args))))))
+             (declare (ignorable ,@(extract-class-initargs slots)))
+             (apply #'make-instance ',name args))
+           (find-class ',name)))))

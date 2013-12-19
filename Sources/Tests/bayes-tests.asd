@@ -11,4 +11,6 @@
                #:stefil)
   :components ((:file "packages")
                (:file "suites")
-               (:file "utilities-tests")))
+               (:file "macro-tests")
+               (:file "utilities-tests")
+               (:file "node-tests")))
