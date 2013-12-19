@@ -7,9 +7,8 @@
   :author "Matthias Hoelzl <tc@xantira.com>"
   :license "MIT, see file LICENSE"
   :depends-on (#:alexandria
-               #:gbbopen
-               #:gbbopen-tools
                #:bayes
-               #:fiveam)
-  :components ((:file "package")
-               (:file "suites")))
+               #:stefil)
+  :components ((:file "packages")
+               (:file "suites")
+               (:file "utilities-tests")))
