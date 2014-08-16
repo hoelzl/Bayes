@@ -34,7 +34,21 @@
     #:node-probability
     #:node-type
     #:node-values
-    #:potential))
+    #:potential
+    #:print-potential
+    #:ra-variable
+    #:ra-variable-name
+    #:ra-variable-domain
+    #:ra-variable-named-domain-list
+    #:permutations
+    #:combinations
+    #:scope
+    #:scope-ra-variables
+    #:tuple
+    #:constraint
+    #:relation
+    #:relationalDatabase
+    #:scopepermutations))
 )
 
 (defpackage #:bayes-implementation

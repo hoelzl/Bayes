@@ -19,6 +19,8 @@
 *.toc
 *.synctex*
 .DS_Store
+# Quicklisp cache file: 
+Sources/system-index.txt
 # Some files and directories
 Readme.tex
 Readme.pdf
