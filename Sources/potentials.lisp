@@ -47,16 +47,10 @@
 ; FIXME: works only if input lists are not empty
 ; returns all combinations of the list elements 
 (defun combinations (&rest lists)
-  (if (car lists)
-    (mapcan 
-      (lambda (inner-val) (mapcar 
-        (lambda (outer-val) (cons outer-val inner-val)) (car lists))
-      )
-      (apply #'combinations (cdr lists))
-    )
-  ; else
-  (list nil))
-)
+  (cond ((not(car lists)) (list nil))
+        (t (mapcan (lambda (x) (mapcar (lambda (y) (cons y x))
+                                       (car lists)))
+                   (apply #'combinations (cdr lists))))))
 
 ; A tuple t on scope S, has a value on each variable in its scope -> val(t,X) is in dom(X)
 (define-class tuple ()

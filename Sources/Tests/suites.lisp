@@ -23,3 +23,7 @@
 (defsuite (bayes-nodes-suite
            :in bayes-suite
            :documentation "Tests for nodes."))
+
+(defsuite (bayes-potentials-suite
+           :in bayes-suite
+           :documentation "Tests for potentials."))

@@ -13,4 +13,5 @@
                (:file "suites")
                (:file "macro-tests")
                (:file "utilities-tests")
-               (:file "node-tests")))
+               (:file "node-tests")
+	       (:file "potential-tests")))
