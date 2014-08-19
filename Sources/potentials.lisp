@@ -34,7 +34,6 @@
           (let ((values-at-i (ra-variable-domain var-at-i))) 
             (dotimes (j (length values-at-i))
               (if (= 0 j) (setf (ra-variable-named-domain-list var-at-i) '())) ; reset list for each permutation call
-              (format t "~S= ~S~%" (ra-variable-name var-at-i) (elt values-at-i j))
               (push   (format nil "~a=~a" (ra-variable-name var-at-i) (elt values-at-i j))
                         (ra-variable-named-domain-list var-at-i)  ;must use push, so we have call-by-reference effect
               ))))))
