@@ -11,4 +11,5 @@
                (:file "macros")
                (:file "utilities")
                (:file "potentials")
-               (:file "nodes")))
+               (:file "nodes")
+	       (:file "bayes-net")))

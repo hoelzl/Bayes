@@ -21,7 +21,15 @@
     #:values-for-type))
 
 (defparameter *bayes-exports*
-  '(#:discrete-node
+  '(#:bayes-net
+    #:make-bayes-net
+    #:*my-bayes-net*
+    #:*node-a*
+    #:*node-b*
+    #:*node-c*
+    #:*node-d*
+    #:*node-e*    
+    #:discrete-node
     #:make-discrete-node
     #:make-node
     #:node
@@ -31,6 +39,7 @@
     #:node-kind
     #:node-parents
     #:node-potential
+    #:node-potential-var-set
     #:node-probability
     #:node-type
     #:node-values

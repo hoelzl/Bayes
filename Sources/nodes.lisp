@@ -29,6 +29,17 @@
   (:documentation "Return the type of NODE (as Lisp type)."))
 
 
+(defgeneric node-potential-var-set (node)
+  (:documentation "returns the set of variables that the potential of the given node is defined on.")
+  (:method (node)
+    (let ((resultset '())
+	  (instantiation (first (node-values node))))
+      (cond ((not(listp instantiation)) 
+	     (push (subseq instantiation 0 (position #\= instantiation)) resultset))
+	    ( t (dotimes (i (length instantiation)) 
+		  (push (subseq (elt instantiation i) 0 (position #\= (elt instantiation i))) resultset))))
+      resultset))) ;return result
+
 (defgeneric node-values (node)
   (:documentation "Return the possible values for node's domain.")
   (:method (node)
@@ -96,9 +107,7 @@ If the domain is infinite, return NIL.")
 (defmethod initialize-instance :after ((node discrete-node) &key)
   (unless (slot-boundp node 'inverse-mapping)
     (let ((table (make-hash-table :test 'equal))
-          (values (node-values node))
-          (break)
-          )
+          (values (node-values node)))
       (dotimes (i (length values))
         (setf (gethash (elt values i) table) i))
       (setf (node-inverse-mapping node) table))))

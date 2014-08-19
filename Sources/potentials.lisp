@@ -9,6 +9,7 @@
 
 (define-class potential ()
   ())
+    
 
 ;; todo: move the following classes and methods to a relational-algebra package and use as needed
 ; name: A, B, C
@@ -29,9 +30,8 @@
   (:method (scope)
     (let ((variables (scope-ra-variables scope)))
       (dotimes (i (length variables)) ; variables contains relationalAlgebra variables *A* e.g.
-        (let ((var-at-i (elt variables i))) ; var-at-i = *A*
-          ;(coerce var-at-i 'ra-variable) ; casting variable to variable, so that we can call object-specific functions 
-          (let ((values-at-i (ra-variable-domain var-at-i))) 
+        (let ((var-at-i (elt variables i))) ; var-at-i = *A* 
+          (let ((values-at-i (ra-variable-domain var-at-i))) ; values-at-i = e.g. (1 2 3) 
             (dotimes (j (length values-at-i))
               (if (= 0 j) (setf (ra-variable-named-domain-list var-at-i) '())) ; reset list for each permutation call
               (push   (format nil "~a=~a" (ra-variable-name var-at-i) (elt values-at-i j))
@@ -80,6 +80,8 @@
 ; (defparameter *C* (make-instance 'ra-variable :name "C" :domain '(1 2 3) ))
 ; (defparameter *scope* (make-instance 'scope :ra-variables (list *A* *B* *C*))) ;; when doing this :ra-variables '(*A* *B* *C*)
 ; (permutations *scope*)
+; this does the same thing:
+; (map-product 'list (ra-variable-domain *A*)  (ra-variable-domain *B*)  (ra-variable-domain *C*) )
 
 ;(defgeneric tuple (scope row-index)
 ;  (:documentation "returns a tuple of the scope for the given row")

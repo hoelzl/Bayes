@@ -55,9 +55,9 @@
                    :kind :nature 
                    :potential (make-array '(8) :initial-contents '(0.95 0.05 0.9 0.1 0.8 0.2 0 1)) 
                    :name "D: Wet Grass?"
-                   :parents (list node-a node-b))))
-          (is (member node-a (node-parents node-d)))
+                   :parents (list node-b node-c))))
           (is (member node-b (node-parents node-d)))
+          (is (member node-c (node-parents node-d)))
           (let ((node-e (make-discrete-node 
                    :values (list (list "C=t" "E=t") 
                                  (list "C=t" "E=f") 
