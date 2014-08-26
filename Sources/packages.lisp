@@ -39,10 +39,12 @@
     #:node-kind
     #:node-parents
     #:node-potential
-    #:node-potential-var-set
+    #:node-potential-dimensions
     #:node-probability
     #:node-type
     #:node-values
+    #:node-get-vars
+    #:sum-out-var
     #:potential
     #:print-potential
     #:ra-variable

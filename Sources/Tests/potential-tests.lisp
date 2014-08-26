@@ -39,3 +39,7 @@
         (is (not (member '("A=1" "B=3" "C=1") perms :test-not #'set-exclusive-or-for-strings))) ; also
         (is (not (member '("A=1" "B=2" "C=4") perms :test-not #'set-exclusive-or-for-strings))) ; not
         (is (not (member '("A=4" "B=3" "C=4") perms :test-not #'set-exclusive-or-for-strings))))))) ; allowed
+
+;(deftest sumout ()
+;  (let 
+;)

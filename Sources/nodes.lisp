@@ -16,7 +16,7 @@
   '(member :nature :decision :utility :assumption))
 
 ; potential = factor = probability table
-; at the beginning the list of parents is empty
+; at the beginning, the list of parents is empty
 ; kind = nature, decision, utility, assumption
 (define-class node ()
   (name
@@ -27,18 +27,6 @@
 
 (defgeneric node-type (node)
   (:documentation "Return the type of NODE (as Lisp type)."))
-
-
-(defgeneric node-potential-var-set (node)
-  (:documentation "returns the set of variables that the potential of the given node is defined on.")
-  (:method (node)
-    (let ((resultset '())
-	  (instantiation (first (node-values node))))
-      (cond ((not(listp instantiation)) 
-	     (push (subseq instantiation 0 (position #\= instantiation)) resultset))
-	    ( t (dotimes (i (length instantiation)) 
-		  (push (subseq (elt instantiation i) 0 (position #\= (elt instantiation i))) resultset))))
-      resultset))) ;return result
 
 (defgeneric node-values (node)
   (:documentation "Return the possible values for node's domain.")
@@ -94,6 +82,17 @@ If the domain is infinite, return NIL.")
       (dotimes (i (length values))
         (format t " ~S | ~S~%" (elt values i) (node-probability node (elt values i)))))))
 
+(defgeneric node-get-vars (node)
+  (:documentation "returns all variables (names of nodes) that are involved in the potential of the given node")
+  (:method (node)
+    (let ((result (list (node-name node)))
+	  (parents (node-parents node)))
+      (dotimes (i (length parents))
+	(push (node-name (elt parents i)) result))
+      result)))
+
+
+
 ;;; Discrete Nodes
 ;;; ==============
 
@@ -108,7 +107,7 @@ If the domain is infinite, return NIL.")
   (unless (slot-boundp node 'inverse-mapping)
     (let ((table (make-hash-table :test 'equal))
           (values (node-values node)))
-      (dotimes (i (length values))
+      (dotimes (i (length values)) ; todo: go over map product of values and parent values
         (setf (gethash (elt values i) table) i))
       (setf (node-inverse-mapping node) table))))
 
@@ -125,14 +124,22 @@ If the domain is infinite, return NIL.")
 ;(defmethod node-discrete-p ((node node))
 ;  (if (eql (type-of node) 'DISCRETE-NODE ) T nil ))
 
-;;; how to run
-; (defparameter *wetter* (make-instance 'discrete-node :values '(Sonne Regen) :potential '(0.4 0.6)) "Sonne oder Regen") -> *WETTER*
-; (node-values *wetter*)    -> (sonne regen)
-; (node-potential *wetter*) -> (0.4 0.6)
-; (initialize-instance *wetter*) is executed implicitly when make-instance is called
+;;; how to run on existing params: switch to package bayes-user and then:
+; (node-probability *node-a* "A=t")          -> 0.6
+; (node-potential-var-set *node-a*)          -> ("A")
+; (node-values *node-a*)                     -> ("A=t" "A=f")
+; (node-potential *node-a*)                  -> #(0.6 0.4)
 
-; (defparameter *supiwetter2* (make-instance 'discrete-node :values '(1 2) :kind :nature :potential (make-array '(2) :initial-contents '(5 6)) :name 'supiwetter2))
-; (node-probability *supiwetter2* 2)  --> 6 !! :)
+;;; how to make new nodes:
 
-;(defparameter *supiwetter* (make-instance 'discrete-node :values '(sonne regen) :kind :nature :potential (make-array '(2) :initial-contents '(0.4 0.6)) :name 'supiwetter))
-;(node-probability *supiwetter* 'sonne)
+; how to make a node with just one variable
+; (defparameter *simple-node-over-A* (make-discrete-node :values ("A=t" "A=f") :kind :nature :potential (make-array '(2) :initial-contents '(0.4 0.6)) :name "node-name"))
+
+; how to make s noe over more variables
+; (defparameter *node-over-A-and-B* (make-discrete-node :values (list (list "A=t" "B=t")(list "A=t" "B=f")(list "A=f" "B=t")(list "A=f" "B=f")) :kind :nature :potential (make-array '(4) :initial-contents '(0.6 0.1 0.2 0.1)) :name "A-and-B"))
+
+; todo: make node creation slimmer: user convention to describe potential table, via list of parents!:
+; e.g. (map-product 'list (list "t0" "f0") (node-values *simple1*) (list "c1" "c2" "c3"))
+; (("t0" "t1" "c1") ("t0" "t1" "c2") ("t0" "t1" "c3") ("t0" "f1" "c1")
+; ("t0" "f1" "c2") ("t0" "f1" "c3") ("f0" "t1" "c1") ("f0" "t1" "c2")
+; ("f0" "t1" "c3") ("f0" "f1" "c1") ("f0" "f1" "c2") ("f0" "f1" "c3"))
