@@ -41,6 +41,7 @@
     #:node-potential
     #:node-potential-dimensions
     #:node-probability
+    #:node-get-named-value-lists
     #:node-type
     #:node-values
     #:node-get-vars

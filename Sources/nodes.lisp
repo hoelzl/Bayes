@@ -8,6 +8,8 @@
 
 (in-package #:bayes-implementation)
 
+
+
 ;;; Nodes
 ;;; =====
 ;;; what is node-kind good for? examples?
@@ -110,6 +112,47 @@ If the domain is infinite, return NIL.")
       (dotimes (i (length values)) ; todo: go over map product of values and parent values
         (setf (gethash (elt values i) table) i))
       (setf (node-inverse-mapping node) table))))
+
+;;; prepare a potential table and insert the values
+;(defmethod initialize-instance :before ((node discrete-node) &key)
+;  (let ((potential-table-keys (map-product 'list node-get-named-value-lists(node)))))
+;)
+
+;;; e.g. executed on node B where : A -> B  => ("A=t" "A=f") ("B=t" "B=f")
+(defgeneric node-get-named-value-lists (node)
+  (:documentation "Returns in order a list of the parent values followed by the node's values")
+  (:method (node)
+    (let ((parent-list (node-parents node))
+	   (result (make-array (1+ (length (node-parents node))))))
+      (dotimes (i (length parent-list))
+	 #+(or) (format t "i = ~a ~%" i)
+	 #+(or) (also possible to comment forms:) 
+	 #+- (Comment)
+	 #+nil (Comment)
+	(let ((current-parent (elt parent-list i)))
+	  (let ((parent-name (node-name current-parent))
+		(parent-values (node-values current-parent)))
+	     #+(or) (format t "parent-name = ~a ~%" parent-name)
+	     #+(or) (format t "parent-values = ~a ~%" parent-values)
+	    (let ((partial-result (make-array (length parent-values))))
+	      (dotimes (j (length parent-values))
+		 #+(or) (format t "j = ~a ~%" j)
+		 #+(or) (format t "saving: ~a=~a  ~%" parent-name (elt parent-values j))
+		(setf (aref partial-result j) (format nil "~a=~a" parent-name (elt parent-values j)))
+		 #+(or) (format t "was saved: ~a ~%" partial-result)
+		)
+	       #+(or) (format t "pushing to result: ~a ~%" partial-result)
+	      (setf (aref result i) partial-result)))))
+       #+(or) (format t "returning result ~a ~%" result)
+      ;; now the parents are pushed to the result array, so we have to add the node values as well
+       (let ((i (length (node-parents node)))
+	    (name (node-name node))
+	    (values (node-values node)))
+	(let ((partial-result (make-array (length values))))
+	  (dotimes (j (length values))
+	    (setf (aref partial-result j) (format nil "~a=~a" name (elt values j))))
+	  (setf (aref result i) partial-result)))
+      result)))
 
 ;;; returns the node type for a discrete node
 ;;; it casts node-values into a list and returns something like (MEMBER 1 2 3)

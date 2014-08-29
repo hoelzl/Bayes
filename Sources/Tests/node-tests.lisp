@@ -69,6 +69,8 @@
                    :parents (list node-c))))
             (is (member node-c (node-parents node-e)))
             (is (member node-a (node-parents (first (node-parents node-e)))))
+            (is (equal (node-potential-dimensions node-a) '(2)))
+            (is (equal (node-potential-dimensions node-b) '(2 2)))
 ))))))
 
 
