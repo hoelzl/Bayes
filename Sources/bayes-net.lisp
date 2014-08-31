@@ -14,14 +14,14 @@
 
 ; Winter?
 (defparameter *node-a* (make-discrete-node 
-			:values (list "t" "f") 
+			:domain-values (list "t" "f") 
 			:kind :nature 
 			:potential (make-array 2 :initial-contents '(0.6 0.4)) 
 			:name "A"))
 
 ; Sprinkler?
 (defparameter *node-b* (make-discrete-node 
-			:values (list "t" "f") 
+			:domain-values (list "t" "f") 
 			:kind :nature 
 			:potential (make-array 4 :initial-contents '(0.2 0.8 0.75 0.25)) 
 			:name "B"
@@ -29,7 +29,7 @@
 
 ; Rain?
 (defparameter *node-c* (make-discrete-node 
-			:values (list "t" "f") 
+			:domain-values (list "t" "f") 
 			:kind :nature 
 			:potential (make-array 4 :initial-contents '(0.8 0.2 0.1 0.9)) 
 			:name "C"
@@ -37,7 +37,7 @@
 
 ; Wet Grass?
 (defparameter *node-d* (make-discrete-node 
-			:values (list "t" "f") 
+			:domain-values (list "t" "f") 
 			:kind :nature 
 			:potential (make-array 8 :initial-contents '(0.95 0.05 0.9 0.1 0.8 0.2 0 1)) 
 			:name "D"
@@ -45,7 +45,7 @@
 
 ; Slippery Road?
 (defparameter *node-e* (make-discrete-node 
-			:values (list "t" "f") 
+			:domain-values (list "t" "f") 
 			:kind :nature 
 			:potential (make-array 4 :initial-contents '(0.7 0.3 0 1)) 
 			:name "E"

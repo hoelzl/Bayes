@@ -30,7 +30,7 @@
 (defgeneric node-type (node)
   (:documentation "Return the type of NODE (as Lisp type)."))
 
-(defgeneric node-values (node)
+(defgeneric node-domain-values (node)
   (:documentation "Return the possible values for node's domain.")
   (:method (node)
     (values-for-type (node-type node))))
@@ -43,7 +43,7 @@
   (:documentation "Return the number of possible values in the node's domain.
 If the domain is infinite, return NIL.")
   (:method (node)
-    (length (node-values node))))
+    (length (node-domain-values node))))
 
 
 (defgeneric node-discrete-p (node)
@@ -57,16 +57,26 @@ If the domain is infinite, return NIL.")
   (cons (node-cardinality node) (mapcar #'node-cardinality (node-parents node))))
 
 (defgeneric node-inverse-mapping (node)
-  (:documentation "Return the mapping from values to indices in the node potential."))
+  (:documentation "Return the mapping from domain-values to their indices. (no longer in potential)"))
 
-(defgeneric node-probability (node node-value &rest parent-values)
-  (:documentation "Compute the probability of (NODE-VALUE PARENT-VALUES) for NODE.")
-  (:method (node node-value &rest parent-values)
-    (apply #'aref (node-potential node)
-           (compute-node-value-index node node-value parent-values))))
+#+-(defgeneric node-probability (node node-value &rest parent-values)
+     (:documentation "Compute the probability of (NODE-VALUE PARENT-VALUES) for NODE.")
+     (:method (node node-value &rest parent-values)
+       (apply #'aref (node-potential node)
+	      (compute-node-value-index node node-value parent-values))))
 
+;; example usage:
+#+-(node-probability *node-d* (list "B=t" "C=t" "D=f"))
+(defgeneric node-probability (node node-values)
+  (:documentation "Compute the probability of the given instatiation of a tuple of the nodes cpt. The value list is given in the form: <p1.name>=<p1.val> <p2.name>=<p2.val> ... <node.name>=<node.val>")
+  (:method (node node-values)
+    (let ((cpt (node-cpt node)))
+      (gethash node-values cpt))))
+
+
+;;; not used anymore
 ;;; question: mustn't lambda be quoted? #'(lambda...
-(defgeneric compute-node-value-index (node node-value parent-values)
+#+-(defgeneric compute-node-value-index (node node-value parent-values)
   (:documentation "Compute the index of (NODE-VALUE . PARENT-VALUES) in NODE's potential.")
   (:method (node node-value parent-values)
     (let ((node-index (gethash node-value (node-inverse-mapping node)))
@@ -76,22 +86,33 @@ If the domain is infinite, return NIL.")
                     parent-values (node-parents node))))
       (cons node-index parent-indices))))
 
-(defgeneric print-potential (node)
+;; deprecated
+#+-(defgeneric print-potential (node)
   (:documentation "prints the potential / factor-function of the given node.")
   (:method (node)
-    (let ((values (node-values node)))
+    (let ((values (node-domain-values node)))
       (format t " ~S | f ~%" (node-name node))
       (dotimes (i (length values))
         (format t " ~S | ~S~%" (elt values i) (node-probability node (elt values i)))))))
 
-(defgeneric node-get-vars (node)
+(defgeneric print-potential (node)
+  (:documentation "prints the potential / factor-function of the given node.")
+  (:method (node)
+    (let ((cpt (node-cpt node)))
+      (maphash #'(lambda (key-list potential) (format t "~S -> ~S~%" key-list potential)) cpt))))
+
+#+-(defun print-hash-entry (key-list potential)
+    (format t "~S -> ~S~%" key-list potential))
+
+(defgeneric node-variables (node)
   (:documentation "returns all variables (names of nodes) that are involved in the potential of the given node")
   (:method (node)
-    (let ((result (list (node-name node)))
+    (let ((result '())
 	  (parents (node-parents node)))
       (dotimes (i (length parents))
-	(push (node-name (elt parents i)) result))
-      result)))
+	(setf result (cons (node-name (elt parents i)) result)))
+      (setf result (cons (node-name node) result))
+      (reverse result))))
 
 
 
@@ -99,19 +120,29 @@ If the domain is infinite, return NIL.")
 ;;; ==============
 
 (define-class discrete-node (node)
-  ((values :type sequence)
-   (inverse-mapping))
+  ((domain-values :type sequence)
+   (cpt)
+   #+-(inverse-mapping))
   (:conc-name node)) 
 ;;; conc-name abbreviates accessor names for a structure's attributes here: node-values would get values instead of discrete-node-values
 
 ;;; after discrete node was initialized, default inverse-mapping attribute is created as a hashmap 
 (defmethod initialize-instance :after ((node discrete-node) &key)
-  (unless (slot-boundp node 'inverse-mapping)
+  #+-(unless (slot-boundp node 'inverse-mapping)
     (let ((table (make-hash-table :test 'equal))
-          (values (node-values node)))
+          (values (node-domain-values node)))
       (dotimes (i (length values)) ; todo: go over map product of values and parent values
         (setf (gethash (elt values i) table) i))
-      (setf (node-inverse-mapping node) table))))
+      (setf (node-inverse-mapping node) table)))
+  (unless (slot-boundp node 'cpt)
+    (let ((cpt (make-hash-table :test 'equal))
+	  (cpt-lhs (node-build-cpt node))
+	  (cpt-rhs (node-potential node)))
+      (dotimes (i (length cpt-lhs))
+	(setf (gethash (elt cpt-lhs i) cpt) (elt cpt-rhs i)))
+    (setf (node-cpt node) cpt))))
+
+
 
 ;;; prepare a potential table and insert the values
 ;(defmethod initialize-instance :before ((node discrete-node) &key)
@@ -123,41 +154,40 @@ If the domain is infinite, return NIL.")
   (:documentation "Returns in order a list of the parent values followed by the node's values")
   (:method (node)
     (let ((parent-list (node-parents node))
-	   (result (make-array (1+ (length (node-parents node))))))
+	  (result-list '()))
       (dotimes (i (length parent-list))
-	 #+(or) (format t "i = ~a ~%" i)
-	 #+(or) (also possible to comment forms:) 
-	 #+- (Comment)
-	 #+nil (Comment)
 	(let ((current-parent (elt parent-list i)))
 	  (let ((parent-name (node-name current-parent))
-		(parent-values (node-values current-parent)))
-	     #+(or) (format t "parent-name = ~a ~%" parent-name)
-	     #+(or) (format t "parent-values = ~a ~%" parent-values)
-	    (let ((partial-result (make-array (length parent-values))))
+		(parent-values (node-domain-values current-parent)))
+	    (let ((partial-result-list '()))
 	      (dotimes (j (length parent-values))
-		 #+(or) (format t "j = ~a ~%" j)
-		 #+(or) (format t "saving: ~a=~a  ~%" parent-name (elt parent-values j))
-		(setf (aref partial-result j) (format nil "~a=~a" parent-name (elt parent-values j)))
-		 #+(or) (format t "was saved: ~a ~%" partial-result)
-		)
-	       #+(or) (format t "pushing to result: ~a ~%" partial-result)
-	      (setf (aref result i) partial-result)))))
-       #+(or) (format t "returning result ~a ~%" result)
+		(setf partial-result-list 
+		      (reverse
+		      (cons 
+		       (format nil "~a=~a" parent-name (elt parent-values j)) 
+		       partial-result-list))))
+	      (setf result-list (cons partial-result-list result-list))))))
       ;; now the parents are pushed to the result array, so we have to add the node values as well
-       (let ((i (length (node-parents node)))
-	    (name (node-name node))
-	    (values (node-values node)))
-	(let ((partial-result (make-array (length values))))
+      (let ((name (node-name node))
+	    (values (node-domain-values node)))
+	(let ((partial-result-list '()))
 	  (dotimes (j (length values))
-	    (setf (aref partial-result j) (format nil "~a=~a" name (elt values j))))
-	  (setf (aref result i) partial-result)))
-      result)))
+	    (setf partial-result-list (reverse (cons 
+						(format nil "~a=~a" name (elt values j)) 
+						partial-result-list))))
+	  (setf result-list (reverse (cons partial-result-list result-list)))))
+      (values-list result-list))))
+
+(defgeneric node-build-cpt (node)
+  (:documentation "returns the left side of a CPT for the given node")
+  (:method (node)
+    (multiple-value-call #'map-product 'list (node-get-named-value-lists node))))
+
 
 ;;; returns the node type for a discrete node
 ;;; it casts node-values into a list and returns something like (MEMBER 1 2 3)
 (defmethod node-type ((node discrete-node))
-  `(member ,@(coerce (node-values node) 'list)))
+  `(member ,@(coerce (node-domain-values node) 'list)))
 
 (defmethod node-discrete-p ((node discrete-node))
   (declare (ignorable node))
@@ -170,7 +200,7 @@ If the domain is infinite, return NIL.")
 ;;; how to run on existing params: switch to package bayes-user and then:
 ; (node-probability *node-a* "A=t")          -> 0.6
 ; (node-potential-var-set *node-a*)          -> ("A")
-; (node-values *node-a*)                     -> ("A=t" "A=f")
+; (node-domain-values *node-a*)                     -> ("A=t" "A=f")
 ; (node-potential *node-a*)                  -> #(0.6 0.4)
 
 ;;; how to make new nodes:
@@ -178,11 +208,8 @@ If the domain is infinite, return NIL.")
 ; how to make a node with just one variable
 ; (defparameter *simple-node-over-A* (make-discrete-node :values ("A=t" "A=f") :kind :nature :potential (make-array '(2) :initial-contents '(0.4 0.6)) :name "node-name"))
 
-; how to make s noe over more variables
+; how to make a node over more variables: before
 ; (defparameter *node-over-A-and-B* (make-discrete-node :values (list (list "A=t" "B=t")(list "A=t" "B=f")(list "A=f" "B=t")(list "A=f" "B=f")) :kind :nature :potential (make-array '(4) :initial-contents '(0.6 0.1 0.2 0.1)) :name "A-and-B"))
 
-; todo: make node creation slimmer: user convention to describe potential table, via list of parents!:
-; e.g. (map-product 'list (list "t0" "f0") (node-values *simple1*) (list "c1" "c2" "c3"))
-; (("t0" "t1" "c1") ("t0" "t1" "c2") ("t0" "t1" "c3") ("t0" "f1" "c1")
-; ("t0" "f1" "c2") ("t0" "f1" "c3") ("f0" "t1" "c1") ("f0" "t1" "c2")
-; ("f0" "t1" "c3") ("f0" "f1" "c1") ("f0" "f1" "c2") ("f0" "f1" "c3"))
+; how to make a node over more variables: NOW
+; (defparameter *node-over-A-and-B* (make-discrete-node :values '()  :kind :nature :potential (make-array '(4) :initial-contents '(0.6 0.1 0.2 0.1)) :name "A-and-B"))
