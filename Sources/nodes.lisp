@@ -11,8 +11,7 @@
 
 ;;; Nodes
 ;;; =====
-;;; what is node-kind good for? examples?
-;;; member is function as well as type specifier
+
 (deftype node-kind ()
   '(member :nature :decision :utility :assumption))
 
@@ -48,13 +47,15 @@ If the domain is infinite, return NIL.")
 (defgeneric node-discrete-p (node)
   (:documentation "Return true if NODE is discrete, false otherwise")
   (:method (node)
+    ;; TODO: This is incorrect, e.g., for integers
     (not (null (node-cardinality node)))))
 
-; returns a list: first element is cardinality of node, next elements are cardinality of parents
-; e.g. (2, 3, 2) (current node: healthy has two possible states, 1st father traffic light (3 states) etc...)
-(defun node-potential-dimensions (node)
-  (cons (node-cardinality node) (mapcar #'node-cardinality (node-parents node))))
 
+(defun node-potential-dimensions (node)
+  "Returns a list with the cardinality of node's parents followed by its own cardinality."
+  (append (mapcar #'node-cardinality (node-parents node)) (list (node-cardinality node))))
+
+#+ (or)
 (defgeneric node-inverse-mapping (node)
   (:documentation "Return the mapping from domain-values to their indices. (no longer in potential)"))
 
@@ -64,14 +65,20 @@ If the domain is infinite, return NIL.")
        (apply #'aref (node-potential node)
 	      (compute-node-value-index node node-value parent-values))))
 
+(defun sort-node-values (node-values)
+  (sort (copy-list node-values) #'string<
+        :key #'first))
+
 ;; example usage:
 #+-(node-probability *node-d* (list "B=t" "C=t" "D=f"))
 (defgeneric node-probability (node node-values)
-  (:documentation "Compute the probability of the given instatiation of a tuple of the nodes cpt. The value list is given in the form: <p1.name>=<p1.val> <p2.name>=<p2.val> ... <node.name>=<node.val>")
+  (:documentation "Compute the probability of the given instatiation of a tuple of the nodes cpt. 
+   The value list is an alist of node-value pairs, i.e., given in the form:
+   ((p1.name p1.value) (p2.name p2.value) ... (node.name node.value))")
   (:method (node node-values)
-    (let ((cpt (node-cpt node)))
-      (gethash node-values cpt))))
-
+    (let ((cpt (node-cpt node))
+          (ordered-node-values (sort-node-values node-values)))
+      (gethash ordered-node-values cpt))))
 
 ;;; not used anymore
 ;;; question: mustn't lambda be quoted? #'(lambda...
@@ -98,18 +105,20 @@ If the domain is infinite, return NIL.")
   (:documentation "prints the potential / factor-function of the given node.")
   (:method (node)
     (let ((cpt (node-cpt node)))
-      (maphash #'(lambda (key-list potential) (format t "~S -> ~S~%" key-list potential)) cpt))))
+      (maphash #'(lambda (key-list potential)
+                   (format t "~S -> ~S~%" key-list potential)) cpt))))
 
 #+-(defun print-hash-entry (key-list potential)
     (format t "~S -> ~S~%" key-list potential))
 
 (defgeneric node-variables (node)
-  (:documentation "returns all variables (names of nodes) that are involved in the potential of the given node")
+  (:documentation
+   "Returns all variables (names of nodes) that are involved in the potential of the given node")
   (:method (node)
     (let ((result '())
 	  (parents (node-parents node)))
-      (dotimes (i (length parents))
-	(setf result (cons (node-name (elt parents i)) result)))
+      (iter (for parent in-sequence parents)
+	(setf result (cons (node-name parent) result)))
       (setf result (cons (node-name node) result))
       (reverse result))))
 
@@ -120,59 +129,55 @@ If the domain is infinite, return NIL.")
 
 (define-class discrete-node (node)
   ((domain-values :type sequence)
-   (cpt)
-   #+-(inverse-mapping))
-  (:conc-name node)) 
-;;; conc-name abbreviates accessor names for a structure's attributes here: node-values would get values instead of discrete-node-values
+   (cpt))
+  (:conc-name node))
+
 
 ;;; after discrete node was initialized, default inverse-mapping attribute is created as a hashmap 
 (defmethod initialize-instance :after ((node discrete-node) &key)
-  #+-(unless (slot-boundp node 'inverse-mapping)
-    (let ((table (make-hash-table :test 'equal))
-          (values (node-domain-values node)))
-      (dotimes (i (length values)) ; todo: go over map product of values and parent values
-        (setf (gethash (elt values i) table) i))
-      (setf (node-inverse-mapping node) table)))
   (unless (slot-boundp node 'cpt)
     (let ((cpt (make-hash-table :test 'equal))
 	  (cpt-lhs (node-build-cpt node))
 	  (cpt-rhs (node-potential node)))
+      (assert (= (length cpt-lhs) (length cpt-rhs)) ()
+              "Left-hand side and right-hand side of CPT have different lengths:~%~W, ~W"
+              cpt-lhs cpt-rhs)
       (dotimes (i (length cpt-lhs))
 	(setf (gethash (elt cpt-lhs i) cpt) (elt cpt-rhs i)))
-    (setf (node-cpt node) cpt))))
+      (let ((sorted-cpt (make-hash-table :test 'equal)))
+        (iter (for (k v) in-hashtable cpt)
+          (setf (gethash (sort-node-values k) sorted-cpt) v))
+        (setf (node-cpt node) sorted-cpt)))))
+
+(defmethod print-object ((node discrete-node) stream)
+  (print-unreadable-object (node stream :type t :identity t)
+    (format stream "~A: ~A" (node-name node) (node-domain-values node))))
 
 (defgeneric node-build-cpt (node)
   (:documentation "returns the left side of a CPT for the given node")
   (:method (node)
-    (multiple-value-call #'map-product 'list (node-get-named-value-lists node))))
+    (apply #'map-product #'list (node-get-named-value-lists node))))
 
-;;; e.g. executed on node B where : A -> B  => ("A=t" "A=f") ("B=t" "B=f")
+;;; e.g. executed on node B where : A -> B  => ((A t) (A nil)) ((B t) (B nil))
 (defgeneric node-get-named-value-lists (node)
   (:documentation "Returns in order a list of the parent values followed by the node's values")
   (:method (node)
-    (let ((parent-list (node-parents node))
-	  (result-list '()))
-      (dotimes (i (length parent-list))
-	(let ((current-parent (elt parent-list i)))
-	  (let ((current-parent-named-list (node-get-named-value-list current-parent)))
-	    (setf result-list (cons current-parent-named-list result-list)))))
-      ;; now the parents are pushed to the result array, so we have to add the node values as well
-      (let ((child-list (node-get-named-value-list node)))
-	(setf result-list (cons child-list result-list))
-	(values-list (reverse result-list))))))
+    (let* ((node-list (append (node-parents node) (list node)))
+           (result-list (map 'list
+                             #'node-get-named-value-list
+                             node-list)))
+      result-list)))
 
-;; e.g. executed on node B where : A -> B => ("B=t" "B=f")
+;; e.g. executed on node B where : A -> B => ((B t) (B nil))
 (defgeneric node-get-named-value-list (node)
   (:documentation "Returns in order a list of the node values preceded by the node's name")
   (:method (node)
     (let ((name (node-name node))
-	  (values (node-domain-values node)))
-      (let ((result-list '()))
-	(dotimes (i (length values))
-	  (setf result-list (cons 
-			     (format nil "~a=~a" name (elt values i)) 
-			     result-list)))
-	(reverse result-list)))))
+          (values (node-domain-values node)))
+      (map 'list
+           (lambda (value)
+             (list name value))
+           values))))
   
 ;;; returns the node type for a discrete node
 ;;; it casts node-values into a list and returns something like (MEMBER 1 2 3)
@@ -182,6 +187,8 @@ If the domain is infinite, return NIL.")
 (defmethod node-discrete-p ((node discrete-node))
   (declare (ignorable node))
   t)
+
+;;; (mappend (lambda (x) (if (< x 3) (list x) '())) '(2 3 5 9))
 
 ;;; tests if given node is a discrete node
 ;(defmethod node-discrete-p ((node node))

@@ -76,7 +76,7 @@
                           #:defmethod
                           #:standard-generic-function)
   (:use #:common-lisp
-        #:alexandria #:c2mop)
+        #:alexandria #:c2mop #:iterate)
   (:nicknames #:bayes-impl)
   (:export . #.*bayes-test-exports*)
   (:export . #.*bayes-utilities-exports*)

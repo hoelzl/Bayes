@@ -33,8 +33,9 @@
 (defgeneric sum-out-var (node-with-cpt-of-interest node-to-eliminate)
   (:documentation "implementation of SumOutVars on Darviche page 130")
   (:method (node-with-cpt-of-interest node-to-eliminate)
-    (let ((x (cons node-with-cpt-of-interest (node-parents node-with-cpt-of-interest)) ;all nodes from the cpt of interest
-          (z node-to-eliminate)))
+    (let ((x (cons node-with-cpt-of-interest (node-parents node-with-cpt-of-interest)))  ;all nodes from the cpt of interest
+
+          (z node-to-eliminate))
       (if (null z) (error 'node-to-eliminate-is-empty))
       (if (< (length x) 2) (error 'node-with-cpt-of-interest-has-only-one-var)) ;fixme: if more than one element gets eliminated, this check is wrong
       (if (not (member z x)) (error 'var-to-be-eliminated-is-not-contained-in-the-cpt-of-interest))

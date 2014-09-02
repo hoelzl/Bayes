@@ -6,7 +6,7 @@
   :version "0.0.1"
   :author "Matthias Hoelzl <tc@xantira.com>"
   :license "MIT, see file LICENSE"
-  :depends-on (#:alexandria #:closer-mop)
+  :depends-on (#:alexandria #:closer-mop #:iterate)
   :components ((:file "packages")
                (:file "macros")
                (:file "utilities")
