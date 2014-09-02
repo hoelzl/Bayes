@@ -10,10 +10,12 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
 
 (defparameter *bayes-test-exports*
-  '(#:node-potential-dimensions
+  '(#:compute-node-value-index
+    #:node-potential-dimensions
     #:process-class-slots
     #:process-class-slot
-    #:process-class-options))
+    #:process-class-options
+    #:node-value-index-table))
 
 (defparameter *bayes-utilities-exports*
   '(#:define-class
@@ -27,8 +29,8 @@
     #:node
     #:node-discrete-p
     #:node-domain
-    #:node-name
     #:node-kind
+    #:node-name
     #:node-parents
     #:node-potential
     #:node-probability
