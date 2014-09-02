@@ -9,7 +9,6 @@
 (in-package #:bayes-implementation)
 
 
-
 ;;; Nodes
 ;;; =====
 ;;; what is node-kind good for? examples?
@@ -142,12 +141,10 @@ If the domain is infinite, return NIL.")
 	(setf (gethash (elt cpt-lhs i) cpt) (elt cpt-rhs i)))
     (setf (node-cpt node) cpt))))
 
-
-
-;;; prepare a potential table and insert the values
-;(defmethod initialize-instance :before ((node discrete-node) &key)
-;  (let ((potential-table-keys (map-product 'list node-get-named-value-lists(node)))))
-;)
+(defgeneric node-build-cpt (node)
+  (:documentation "returns the left side of a CPT for the given node")
+  (:method (node)
+    (multiple-value-call #'map-product 'list (node-get-named-value-lists node))))
 
 ;;; e.g. executed on node B where : A -> B  => ("A=t" "A=f") ("B=t" "B=f")
 (defgeneric node-get-named-value-lists (node)
@@ -157,33 +154,26 @@ If the domain is infinite, return NIL.")
 	  (result-list '()))
       (dotimes (i (length parent-list))
 	(let ((current-parent (elt parent-list i)))
-	  (let ((parent-name (node-name current-parent))
-		(parent-values (node-domain-values current-parent)))
-	    (let ((partial-result-list '()))
-	      (dotimes (j (length parent-values))
-		(setf partial-result-list 
-		      (reverse
-		      (cons 
-		       (format nil "~a=~a" parent-name (elt parent-values j)) 
-		       partial-result-list))))
-	      (setf result-list (cons partial-result-list result-list))))))
+	  (let ((current-parent-named-list (node-get-named-value-list current-parent)))
+	    (setf result-list (cons current-parent-named-list result-list)))))
       ;; now the parents are pushed to the result array, so we have to add the node values as well
-      (let ((name (node-name node))
-	    (values (node-domain-values node)))
-	(let ((partial-result-list '()))
-	  (dotimes (j (length values))
-	    (setf partial-result-list (reverse (cons 
-						(format nil "~a=~a" name (elt values j)) 
-						partial-result-list))))
-	  (setf result-list (reverse (cons partial-result-list result-list)))))
-      (values-list result-list))))
+      (let ((child-list (node-get-named-value-list node)))
+	(setf result-list (cons child-list result-list))
+	(values-list (reverse result-list))))))
 
-(defgeneric node-build-cpt (node)
-  (:documentation "returns the left side of a CPT for the given node")
+;; e.g. executed on node B where : A -> B => ("B=t" "B=f")
+(defgeneric node-get-named-value-list (node)
+  (:documentation "Returns in order a list of the node values preceded by the node's name")
   (:method (node)
-    (multiple-value-call #'map-product 'list (node-get-named-value-lists node))))
-
-
+    (let ((name (node-name node))
+	  (values (node-domain-values node)))
+      (let ((result-list '()))
+	(dotimes (i (length values))
+	  (setf result-list (cons 
+			     (format nil "~a=~a" name (elt values i)) 
+			     result-list)))
+	(reverse result-list)))))
+  
 ;;; returns the node type for a discrete node
 ;;; it casts node-values into a list and returns something like (MEMBER 1 2 3)
 (defmethod node-type ((node discrete-node))

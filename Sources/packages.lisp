@@ -41,6 +41,7 @@
     #:node-discrete-p
     #:node-domain-values
     #:node-get-named-value-lists
+    #:node-get-named-value-list
     #:node-inverse-mapping
     #:node-kind
     #:node-name

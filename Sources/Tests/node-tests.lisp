@@ -16,6 +16,15 @@
     (is (equal (node-type n2) '(member a b c)))
 ))
 
+(deftest test-node-get-named-value-lists ()
+  (let ((n (make-discrete-node :domain-values '(1 2 3 4 5) :name "N" :potential (make-array  5 :initial-contents '(0.1 0.15 0.1 0.25 0.4))))
+        (expected-result-for-n (list "N=1" "N=2" "N=3" "N=4" "N=5")))
+    (is (equal expected-result-for-n (node-get-named-value-lists n)))
+    (let ((m (make-discrete-node :domain-values '(6 7 8 9) :name "M" :potential (make-array 4 :initial-contents '(0.2 0.3 0.4 0.1)) :parents (list n)))
+          (expected-result-for-m (list "M=6" "M=7" "M=8" "M=9")))
+      (is (equal expected-result-for-m (node-get-named-value-list m)))
+      (is (equal (list expected-result-for-n expected-result-for-m) (node-get-named-value-lists m))))))
+
 (deftest test-bayesian-network-darwiche-page-127 ()
   (let ((node-a (make-discrete-node 
                  :domain-values (list "t" "f") 

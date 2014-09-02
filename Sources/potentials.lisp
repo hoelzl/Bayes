@@ -1,3 +1,4 @@
+
 ;;; -*- Mode: Lisp; common-lisp-style: poem -*-
 
 ;;; Copyright (c) 2013 Matthias Hölzl
@@ -10,7 +11,7 @@
 (define-class potential ()
   ())
     
-(defgeneric sum-out-var (node-with-potential-of-interest node-to-eliminate)
+#+-(defgeneric sum-out-var (node-with-potential-of-interest node-to-eliminate)
   (:documentation "implementation of SumOutVars on Darviche page 130")
   (:method (node-with-potential-of-interest node-to-eliminate)
     (let ((x (node-get-vars node-with-potential-of-interest))
@@ -20,6 +21,27 @@
       (if (not (member z x)) (error 'var-to-be-eliminated-is-not-contained-in-the-potential-of-interest))
       (let ((y (remove z x))
             (result-potential (make-array 
+                               (/ (node-cardinality node-with-potential-of-interest) (node node-to-eliminate)))))
+        ;(loop for i from 0 to '(1 2 3) do (print i))
+        (length result-potential) ;todo: implement double loop that sums out the var from node-to-elimininate
+        ;)
+        )
+      )
+    )
+)
+
+(defgeneric sum-out-var (node-with-cpt-of-interest node-to-eliminate)
+  (:documentation "implementation of SumOutVars on Darviche page 130")
+  (:method (node-with-cpt-of-interest node-to-eliminate)
+    (let ((x (cons node-with-cpt-of-interest (node-parents node-with-cpt-of-interest)) ;all nodes from the cpt of interest
+          (z node-to-eliminate)))
+      (if (null z) (error 'node-to-eliminate-is-empty))
+      (if (< (length x) 2) (error 'node-with-cpt-of-interest-has-only-one-var)) ;fixme: if more than one element gets eliminated, this check is wrong
+      (if (not (member z x)) (error 'var-to-be-eliminated-is-not-contained-in-the-cpt-of-interest))
+      (let ((base-cpt (node-cpt node-with-cpt-of-interest)) ; this is a hashtable
+            (y (remove z x)) ; y contains the nodes of the result after elimination
+            (result-cpt (make-hash-table :test 'equal)))
+        (let ((result-cpt-lhs 
                                (/ (node-cardinality node-with-potential-of-interest) (node node-to-eliminate)))))
         ;(loop for i from 0 to '(1 2 3) do (print i))
         (length result-potential) ;todo: implement double loop that sums out the var from node-to-elimininate
