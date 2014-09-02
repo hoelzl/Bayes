@@ -28,6 +28,7 @@
 
 (defparameter *options-to-remove* '(:conc-name :structure-class))
 
+;;; removes class options :conc-name and :structure-class
 (defun process-class-options (class-name options)
   (declare (ignore class-name))
   (let ((result '()))

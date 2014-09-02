@@ -23,20 +23,51 @@
     #:values-for-type))
 
 (defparameter *bayes-exports*
-  '(#:discrete-node
+  '(#:*my-bayes-net*
+    #:*node-a*
+    #:*node-b*
+    #:*node-c*
+    #:*node-d*
+    #:*node-e*    
+    #:bayes-net    
+    #:combinations    
+    #:constraint
+    #:discrete-node
+    #:make-bayes-net
     #:make-discrete-node
     #:make-node
     #:node
+    #:node-build-cpt
+    #:node-cardinality
+    #:node-cpt
     #:node-discrete-p
-    #:node-domain
+    #:node-domain-values
+    #:node-get-named-value-lists
+    #:node-get-named-value-list
+    #:node-inverse-mapping
     #:node-kind
     #:node-name
     #:node-parents
     #:node-potential
+    #:node-potential-dimensions
     #:node-probability
     #:node-type
     #:node-values
-    #:potential))
+    #:node-variables
+    #:permutations
+    #:potential
+    #:print-potential
+    #:ra-variable
+    #:ra-variable-domain
+    #:ra-variable-name
+    #:ra-variable-named-domain-list
+    #:relation
+    #:relationalDatabase
+    #:scope
+    #:scope-permutations
+    #:scope-ra-variables
+    #:sum-out-var
+    #:tuple))
 )
 
 (defpackage #:bayes-implementation
