@@ -78,10 +78,10 @@ If the domain is infinite, return NIL.")
 #+-(defgeneric compute-node-value-index (node node-value parent-values)
   (:documentation "Compute the index of (NODE-VALUE . PARENT-VALUES) in NODE's potential.")
   (:method (node node-value parent-values)
-    (let ((node-index (gethash node-value (node-inverse-mapping node)))
+    (let ((node-index (gethash node-value (node-value-index-table node)))
           (parent-indices
             (mapcar (lambda (value node)
-                      (gethash value (node-inverse-mapping node)))
+                      (gethash value (node-value-index-table node)))
                     parent-values (node-parents node))))
       (cons node-index parent-indices))))
 

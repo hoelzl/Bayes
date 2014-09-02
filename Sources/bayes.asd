@@ -10,6 +10,7 @@
   :components ((:file "packages")
                (:file "macros")
                (:file "utilities")
+               (:file "variables")
                (:file "potentials")
                (:file "nodes")
 	       (:file "bayes-net")))
