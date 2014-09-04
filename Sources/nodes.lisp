@@ -55,22 +55,14 @@ If the domain is infinite, return NIL.")
   "Returns a list with the cardinality of node's parents followed by its own cardinality."
   (append (mapcar #'node-cardinality (node-parents node)) (list (node-cardinality node))))
 
-#+ (or)
-(defgeneric node-inverse-mapping (node)
-  (:documentation "Return the mapping from domain-values to their indices. (no longer in potential)"))
-
-#+-(defgeneric node-probability (node node-value &rest parent-values)
-     (:documentation "Compute the probability of (NODE-VALUE PARENT-VALUES) for NODE.")
-     (:method (node node-value &rest parent-values)
-       (apply #'aref (node-potential node)
-	      (compute-node-value-index node node-value parent-values))))
-
 (defun sort-node-values (node-values)
   (sort (copy-list node-values) #'string<
         :key #'first))
 
-;; example usage:
-#+-(node-probability *node-d* (list "B=t" "C=t" "D=f"))
+;; example usages:
+#+(or) (node-probability *node-b* '((A t)(B t))) ;; -> 0.2 -> T
+;; the lookup is commutative
+#+(or) (node-probability *node-b* '((B t)(A t))) ;; -> 0.2 -> T
 (defgeneric node-probability (node node-values)
   (:documentation "Compute the probability of the given instatiation of a tuple of the nodes cpt. 
    The value list is an alist of node-value pairs, i.e., given in the form:
@@ -80,26 +72,6 @@ If the domain is infinite, return NIL.")
           (ordered-node-values (sort-node-values node-values)))
       (gethash ordered-node-values cpt))))
 
-;;; not used anymore
-;;; question: mustn't lambda be quoted? #'(lambda...
-#+-(defgeneric compute-node-value-index (node node-value parent-values)
-  (:documentation "Compute the index of (NODE-VALUE . PARENT-VALUES) in NODE's potential.")
-  (:method (node node-value parent-values)
-    (let ((node-index (gethash node-value (node-value-index-table node)))
-          (parent-indices
-            (mapcar (lambda (value node)
-                      (gethash value (node-value-index-table node)))
-                    parent-values (node-parents node))))
-      (cons node-index parent-indices))))
-
-;; deprecated
-#+-(defgeneric print-potential (node)
-  (:documentation "prints the potential / factor-function of the given node.")
-  (:method (node)
-    (let ((values (node-domain-values node)))
-      (format t " ~S | f ~%" (node-name node))
-      (dotimes (i (length values))
-        (format t " ~S | ~S~%" (elt values i) (node-probability node (elt values i)))))))
 
 (defgeneric print-potential (node)
   (:documentation "prints the potential / factor-function of the given node.")
@@ -107,9 +79,6 @@ If the domain is infinite, return NIL.")
     (let ((cpt (node-cpt node)))
       (maphash #'(lambda (key-list potential)
                    (format t "~S -> ~S~%" key-list potential)) cpt))))
-
-#+-(defun print-hash-entry (key-list potential)
-    (format t "~S -> ~S~%" key-list potential))
 
 (defgeneric node-variables (node)
   (:documentation
@@ -121,7 +90,6 @@ If the domain is infinite, return NIL.")
 	(setf result (cons (node-name parent) result)))
       (setf result (cons (node-name node) result))
       (reverse result))))
-
 
 
 ;;; Discrete Nodes
@@ -179,7 +147,6 @@ If the domain is infinite, return NIL.")
              (list name value))
            values))))
   
-;;; returns the node type for a discrete node
 ;;; it casts node-values into a list and returns something like (MEMBER 1 2 3)
 (defmethod node-type ((node discrete-node))
   `(member ,@(coerce (node-domain-values node) 'list)))
@@ -188,25 +155,6 @@ If the domain is infinite, return NIL.")
   (declare (ignorable node))
   t)
 
-;;; (mappend (lambda (x) (if (< x 3) (list x) '())) '(2 3 5 9))
-
 ;;; tests if given node is a discrete node
 ;(defmethod node-discrete-p ((node node))
 ;  (if (eql (type-of node) 'DISCRETE-NODE ) T nil ))
-
-;;; how to run on existing params: switch to package bayes-user and then:
-; (node-probability *node-a* "A=t")          -> 0.6
-; (node-potential-var-set *node-a*)          -> ("A")
-; (node-domain-values *node-a*)                     -> ("A=t" "A=f")
-; (node-potential *node-a*)                  -> #(0.6 0.4)
-
-;;; how to make new nodes:
-
-; how to make a node with just one variable
-; (defparameter *simple-node-over-A* (make-discrete-node :values ("A=t" "A=f") :kind :nature :potential (make-array '(2) :initial-contents '(0.4 0.6)) :name "node-name"))
-
-; how to make a node over more variables: before
-; (defparameter *node-over-A-and-B* (make-discrete-node :values (list (list "A=t" "B=t")(list "A=t" "B=f")(list "A=f" "B=t")(list "A=f" "B=f")) :kind :nature :potential (make-array '(4) :initial-contents '(0.6 0.1 0.2 0.1)) :name "A-and-B"))
-
-; how to make a node over more variables: NOW
-; (defparameter *node-over-A-and-B* (make-discrete-node :values '()  :kind :nature :potential (make-array '(4) :initial-contents '(0.6 0.1 0.2 0.1)) :name "A-and-B"))
