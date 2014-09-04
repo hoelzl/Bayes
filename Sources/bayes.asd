@@ -13,4 +13,5 @@
                (:file "variables")
                (:file "potentials")
                (:file "nodes")
+	       (:file "variable-elimination")
 	       (:file "bayes-net")))
