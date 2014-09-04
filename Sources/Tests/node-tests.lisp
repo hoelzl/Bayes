@@ -51,9 +51,14 @@
                    :name 'B
                    :parents (list node-a))))
       (is (equal 0.2 (node-probability node-b '((A t) (B t)))))
+      (is (equal 0.2 (node-probability node-b '((B t) (A t)))))
       (is (equal 0.8 (node-probability node-b '((A t) (B nil)))))
+      (is (equal 0.8 (node-probability node-b '((B nil) (A t)))))
       (is (equal 0.75 (node-probability node-b '((A nil) (B t)))))
+      (is (equal 0.75 (node-probability node-b '((B t) (A nil)))))
       (is (equal 0.25 (node-probability node-b '((A nil) (B nil)))))
+      (is (equal 0.25 (node-probability node-b '((B nil) (A nil)))))
+
       (is (member node-a (node-parents node-b))) ; check if a is parent of b
       ;; TODO: make this work too (commutative)
       ;; (is (equal 0.25 (node-probability node-b '((B nil) (A nil)))))
@@ -72,10 +77,24 @@
                        :parents (list node-b node-c))))
           (is (member node-b (node-parents node-d)))
           (is (member node-c (node-parents node-d)))
+          ;; checking if probability accepts any order of inputs
           (is (equal 0.95 (node-probability node-d '((B t) (C t) (D t)))))
+          (is (equal 0.95 (node-probability node-d '((B t) (D t) (C t)))))
+          (is (equal 0.95 (node-probability node-d '((C t) (B t) (D t)))))
+          (is (equal 0.95 (node-probability node-d '((C t) (D t) (B t)))))
+          (is (equal 0.95 (node-probability node-d '((D t) (B t) (C t)))))
+          (is (equal 0.95 (node-probability node-d '((D t) (C t) (B t)))))
+
           (is (equal 0.05 (node-probability node-d '((B t) (C t) (D nil)))))
           (is (equal 0.9 (node-probability node-d '((B t) (C nil) (D t)))))
+
           (is (equal 0.1 (node-probability node-d '((B t) (C nil) (D nil)))))
+          (is (equal 0.1 (node-probability node-d '((B t) (D nil) (C nil)))))
+          (is (equal 0.1 (node-probability node-d '((C nil) (B t) (D nil)))))
+          (is (equal 0.1 (node-probability node-d '((C nil) (D nil) (B t)))))
+          (is (equal 0.1 (node-probability node-d '((D nil) (B t) (C nil)))))
+          (is (equal 0.1 (node-probability node-d '((D nil) (C nil) (B t)))))
+
           (is (equal 0.8 (node-probability node-d '((B nil) (C t) (D t)))))
           (is (equal 0.2 (node-probability node-d '((B nil) (C t) (D nil)))))
           (is (equal 0 (node-probability node-d '((B nil) (C nil) (D t)))))
