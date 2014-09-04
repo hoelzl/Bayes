@@ -8,6 +8,9 @@
 
 (in-package #:bayes-implementation)
 
+;; using double floats so that (+ 0.9 0.95) -> 1.85, instead of 1.8499999
+(setf *read-default-float-format* 'double-float)
+
 (define-class bayes-net ()
   (name
   (nodes :initform '())))
