@@ -19,7 +19,8 @@
   (assert (not (null node-to-eliminate)) () "The Node to eliminate is empty")
   (assert (> (length (node-variables node-with-cpt-of-interest)) 1) () "The CPT of interest has only one variable")
   ;; x = all nodes from the cpt of interest
-  (let ((x (cons node-with-cpt-of-interest (node-parents node-with-cpt-of-interest)))  
+  (let ((x (cons node-with-cpt-of-interest 
+		 (node-parents node-with-cpt-of-interest)))  
 	(z node-to-eliminate))
     (assert (member z x) () "The Var to be eliminated is not contained in the CPT of interest")
     (let ((base-cpt (node-cpt node-with-cpt-of-interest))
@@ -41,33 +42,14 @@
 			      ;; y instantiation is contained in x instatiation -> sum
 			      ;; key is contained in base-key
 			      (setf (gethash key result-cpt) (+ base-value (gethash key result-cpt))))
-			  (format t "The base-value associated with the base-key ~S is ~S~%" base-key base-value)
+			  #+(or)(format t "The base-value associated with the base-key ~S is ~S~%" base-key base-value)
 		       )
-		 (format t "The value associated with the key ~S is ~S~%" key value)
+		 #+(or)(format t "The value associated with the key ~S is ~S~%" key value)
 	      )
+	;; print the result
+	(loop for key being the hash-keys of result-cpt
+	      using (hash-value value)
+	      do
+		 (format t "The value associated with the key ~S is ~S~%" key value))
 	result-cpt))))	
       
-      #+-(let ((result-cpt-lhs 
-		 (/ (node-cardinality node-with-potential-of-interest) (node node-to-eliminate)))))
-      
-      #+-(length result-potential) ;todo: implement double loop that sums out the var from node-to-elimininate	;)
-      
-
-#+(or)(defgeneric sum-out-var (node-with-potential-of-interest node-to-eliminate)
-  (:documentation "implementation of SumOutVars on Darviche page 130")
-  (:method (node-with-potential-of-interest node-to-eliminate)
-    (let ((x (node-get-vars node-with-potential-of-interest))
-          (z (node-name node-to-eliminate)))
-      (if (null z) (error 'node-to-eliminate-is-empty))
-      (if (null (first x)) (error 'node-with-potential-of-interest-has-no-var))
-      (if (not (member z x)) (error 'var-to-be-eliminated-is-not-contained-in-the-potential-of-interest))
-      (let ((y (remove z x))
-            (result-potential (make-array 
-                               (/ (node-cardinality node-with-potential-of-interest) (node node-to-eliminate)))))
-        ;(loop for i from 0 to '(1 2 3) do (print i))
-        (length result-potential) ;todo: implement double loop that sums out the var from node-to-elimininate
-        ;)
-        )
-      )
-    )
-)
