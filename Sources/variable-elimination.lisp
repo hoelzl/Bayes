@@ -12,19 +12,21 @@
     (dolist (node node-list)
       (setf named-lists (cons (node-get-named-value-list node) 
 			      named-lists)))
-    (apply #'map-product #'list named-lists)))      
+    (if (> (length named-lists) 0) 
+	(apply #'map-product #'list named-lists)
+	nil)))      
 
-(defun sum-out-var (node-with-cpt-of-interest node-to-eliminate)
+(defun sum-out-var (node-with-cpt-of-interest nodes-to-eliminate)
   "implementation of SumOutVars on Darviche page 130"
-  (assert (not (null node-to-eliminate)) () "The Node to eliminate is empty")
+  (assert (not (null nodes-to-eliminate)) () "The Node to eliminate is empty")
   (assert (> (length (node-variables node-with-cpt-of-interest)) 1) () "The CPT of interest has only one variable")
   ;; x = all nodes from the cpt of interest
   (let ((x (cons node-with-cpt-of-interest 
 		 (node-parents node-with-cpt-of-interest)))  
-	(z node-to-eliminate))
-    (assert (member z x) () "The Var to be eliminated is not contained in the CPT of interest")
+	(z nodes-to-eliminate))
+    #+-(assert (member z x) () "The Var to be eliminated is not contained in the CPT of interest")
     (let ((base-cpt (node-cpt node-with-cpt-of-interest))
-	  (y (remove z x)) ; removes z from x; y contains the nodes of the result after elimination
+	  (y (set-difference x z :test #'equal)) ; removes z from x; y contains the nodes of the result after elimination
 	  (result-cpt (make-hash-table :test 'equal)))
       (let* ((result-cpt-lhs (build-cpt-lhs-for-given-nodes y))
 	     (result-cpt-rhs (make-array (length result-cpt-lhs) :initial-element 0)))
