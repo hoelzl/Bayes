@@ -67,9 +67,33 @@
   (assert (> (length nodes-with-cpts-to-multiply) 1) () "You must provide at least two nodes to multiply their CPTs.")
   ;; z = union-list of all nodes that exist are involved in the CPTs
   (let* ((z (get-all-nodes-that-exist-in-the-cpts nodes-with-cpts-to-multiply))
-	(result-cpt (build-cpt-for-nodes z 1)))
+	 (result-cpt (build-cpt-for-nodes z 1)))
+    (loop for result-key being the hash-keys of result-cpt
+	  using (hash-value result-value)
+	  do
+	     (let ((cpts-to-multiply (get-all-cpts-of-nodes nodes-with-cpts-to-multiply)))
+	       (dolist (cpt cpts-to-multiply)
+		 (loop for cpt-key being the hash-keys of cpt
+		     using (hash-value cpt-value)
+		     do
+			(if (equal 
+			     (length (intersection cpt-key result-key :test #'equal)) 
+			     (length cpt-key))
+			    (setf (gethash result-key result-cpt) (* cpt-value (gethash result-key result-cpt)))
+			    )
+		       )
+		 )
+	       )
+	  )
     result-cpt
     ))
+
+(defun get-all-cpts-of-nodes (nodes)
+  "returns all cpts of given nodes as a list of hash-tables"
+  (let ((list-of-cpts nil))
+    (dolist (node nodes)
+      (setf list-of-cpts (cons (node-cpt node) list-of-cpts)))
+    list-of-cpts))
 
 (defun get-all-nodes-that-exist-in-the-cpts (node-list)
   (let ((result-list nil))
