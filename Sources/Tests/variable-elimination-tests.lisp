@@ -9,7 +9,7 @@
 
 (in-suite bayes-nodes-suite)
 
-(deftest test-sum-out-var ()
+(deftest test-sum-out-vars ()
   (let* ((node-a (make-discrete-node
                  :domain-values '(t nil)
                  :kind :nature
