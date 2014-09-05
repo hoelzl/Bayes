@@ -19,12 +19,10 @@
 (defun sum-out-var (node-with-cpt-of-interest nodes-to-eliminate)
   "implementation of SumOutVars on Darviche page 130"
   (assert (not (null nodes-to-eliminate)) () "The Node to eliminate is empty")
-  (assert (> (length (node-variables node-with-cpt-of-interest)) 1) () "The CPT of interest has only one variable")
   ;; x = all nodes from the cpt of interest
   (let ((x (cons node-with-cpt-of-interest 
 		 (node-parents node-with-cpt-of-interest)))  
 	(z nodes-to-eliminate))
-    #+-(assert (member z x) () "The Var to be eliminated is not contained in the CPT of interest")
     (let ((base-cpt (node-cpt node-with-cpt-of-interest))
 	  (y (set-difference x z :test #'equal)) ; removes z from x; y contains the nodes of the result after elimination
 	  (result-cpt (make-hash-table :test 'equal)))
