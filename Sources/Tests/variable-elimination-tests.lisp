@@ -37,9 +37,9 @@
 					      :initial-contents '(0.95 0.05 0.9 0.1 0.8 0.2 0 1)) 
                        :name 'D
                        :parents (list node-b node-c)))
-	 (summed-out-d (sum-out-var node-d (list node-d)))
-	 (summed-out-db (sum-out-var node-d (list node-d node-b)))
-	 (summed-out-dbc (sum-out-var node-d (list node-d node-b node-c))))
+	 (summed-out-d (sum-out-vars node-d (list node-d)))
+	 (summed-out-db (sum-out-vars node-d (list node-d node-b)))
+	 (summed-out-dbc (sum-out-vars node-d (list node-d node-b node-c))))
     (is (equal (hash-table-count summed-out-d) 4))
     (is (equal (hash-table-count summed-out-db) 2))
     (is (equal (hash-table-count summed-out-dbc) 1))
@@ -55,4 +55,4 @@
 	  using (hash-value value)
 	  do
 	     (is (= 4.0 value)))
-    (signals error (sum-out-var node-d nil))))
+    (signals error (sum-out-vars node-d nil))))

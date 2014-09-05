@@ -16,7 +16,7 @@
 	(apply #'map-product #'list named-lists)
 	'((trivial-factor 0)))))      
 
-(defun sum-out-var (node-with-cpt-of-interest nodes-to-eliminate)
+(defun sum-out-vars (node-with-cpt-of-interest nodes-to-eliminate)
   "implementation of SumOutVars on Darviche page 130"
   (assert (not (null nodes-to-eliminate)) () "The Node to eliminate is empty")
   ;; x = all nodes from the cpt of interest
