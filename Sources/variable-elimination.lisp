@@ -14,7 +14,7 @@
 			      named-lists)))
     (if (> (length named-lists) 0) 
 	(apply #'map-product #'list named-lists)
-	nil)))      
+	'((trivial-factor 0)))))      
 
 (defun sum-out-var (node-with-cpt-of-interest nodes-to-eliminate)
   "implementation of SumOutVars on Darviche page 130"
@@ -43,6 +43,8 @@
 			       (length key))
 			      ;; y instantiation is contained in x instatiation -> sum
 			      ;; key is contained in base-key
+			      (setf (gethash key result-cpt) (+ base-value (gethash key result-cpt))))
+			  (if (equal key '(trivial-factor 0)) 
 			      (setf (gethash key result-cpt) (+ base-value (gethash key result-cpt))))
 			  #+(or)(format t "The base-value associated with the base-key ~S is ~S~%" base-key base-value)
 		       )
