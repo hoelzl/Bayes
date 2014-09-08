@@ -7,6 +7,36 @@
 
 (in-package #:bayes-implementation)
 
+(defun ve-pr1 (bayes-net nodes-to-keep nodes-to-eliminate-in-order)
+  "Implementation of VE_PR1 of Darwiche on p. 134"
+  (let ((s (cpts-of-bayes-net bayes-net)))
+    (dolist (node-to-eliminate nodes-to-eliminate)
+      (let ((cpts-containing-elimination-node nil)) 
+        ))))
+
+(defun cpt-contains-node-p (cpt node)
+  "returns nil if the hashmap does not contain the node's name as a key"   
+  (let ((result nil))
+    (if (loop for key being the hash-key of cpt thereis (hashkey-contains-nodename-p key (node-name node)))
+      (setf result T))
+    result))
+
+(defun hashkey-contains-nodename-p (key name)
+  (let ((result nil))
+    (dolist (node-name-value-pair key)
+      (if (equal name (car node-name-value-pair))
+          (setf result T)))
+    result))
+
+(defun cpts-of-bayes-net (bayes-net)
+  "Returns a list of all CPTs (hastables containing the potentials) of the given bayes net"
+  (let ((nodes (bayes-net-nodes bayes-net))
+        (cpts nil))
+    (dolist (node nodes)
+      (setf cpts (cons (node-cpt node) 
+                       cpts)))
+    cpts ))
+
 (defun build-cpt-lhs-for-given-nodes (node-list)
   (let ((named-lists '()))
     (dolist (node node-list)
