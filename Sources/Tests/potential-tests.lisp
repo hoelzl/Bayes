@@ -9,10 +9,10 @@
 
 (in-suite bayes-potentials-suite)
 
-(defun set-exclusive-or-for-strings (list-a list-b)
+#++(defun set-exclusive-or-for-strings (list-a list-b)
   (set-exclusive-or list-a list-b :test #'equal))
 
-(deftest test-combinations ()
+#++(deftest test-combinations ()
   (let ((c1 (combinations '(1 2 3) '(4 5)))
         (c2 (combinations '(4 5) '(1 2 3))))
     (is (equal 6 (length c1)))
@@ -20,7 +20,7 @@
     (dotimes (i (length c1)) 
       (is (member (nth i c1) c2 :test-not #'set-exclusive-or)))))
 
-(deftest test-permutations ()
+#++(deftest test-permutations ()
   (let ((var-a (make-instance 'ra-variable :name "A" :domain '(1 2 3 4)))
         (var-b (make-instance 'ra-variable :name "B" :domain '(1 2)))
         (var-c (make-instance 'ra-variable :name "C" :domain '(1 2 3))))

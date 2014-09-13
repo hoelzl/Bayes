@@ -12,6 +12,7 @@
                (:file "utilities")
                (:file "variables")
                (:file "potentials")
+	       (:file "cpts")
                (:file "nodes")
 	       (:file "variable-elimination")
 	       (:file "bayes-net")))

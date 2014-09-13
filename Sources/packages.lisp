@@ -30,12 +30,12 @@
     #:*node-d*
     #:*node-e*    
     #:bayes-net    
-    #:combinations    
     #:constraint
     #:discrete-node
     #:make-bayes-net
     #:make-discrete-node
     #:make-node
+    #:multiply-factors
     #:node
     #:node-build-cpt
     #:node-cardinality
@@ -44,30 +44,18 @@
     #:node-domain-values
     #:node-get-named-value-lists
     #:node-get-named-value-list
-    #:node-inverse-mapping
     #:node-kind
     #:node-name
     #:node-parents
-    #:node-potential
+    #:node-potential-rhs
     #:node-potential-dimensions
     #:node-probability
     #:node-type
     #:node-values
     #:node-variables
-    #:permutations
-    #:potential
+    #:potential-rhs
     #:print-potential
-    #:ra-variable
-    #:ra-variable-domain
-    #:ra-variable-name
-    #:ra-variable-named-domain-list
-    #:relation
-    #:relationalDatabase
-    #:scope
-    #:scope-permutations
-    #:scope-ra-variables
-    #:sum-out-var
-    #:tuple))
+    #:sum-out-vars))
 )
 
 (defpackage #:bayes-implementation

@@ -21,7 +21,7 @@
 (define-class node ()
   (name
    (parents :initform '())
-   potential
+   potential-rhs
    (kind :type node-kind)))
 
 
@@ -68,17 +68,17 @@ If the domain is infinite, return NIL.")
    The value list is an alist of node-value pairs, i.e., given in the form:
    ((p1.name p1.value) (p2.name p2.value) ... (node.name node.value))")
   (:method (node node-values)
-    (let ((cpt (node-cpt node))
+    (let ((cpt-table (cpt-hashtable (node-cpt node)))
           (ordered-node-values (sort-node-values node-values)))
-      (gethash ordered-node-values cpt))))
+      (gethash ordered-node-values cpt-table))))
 
 
 (defgeneric print-potential (node)
   (:documentation "prints the potential / factor-function of the given node.")
   (:method (node)
-    (let ((cpt (node-cpt node)))
+    (let ((cpt-table (cpt-hashtable (node-cpt node))))
       (maphash #'(lambda (key-list potential)
-                   (format t "~S -> ~S~%" key-list potential)) cpt))))
+                   (format t "~S -> ~S~%" key-list potential)) cpt-table))))
 
 (defgeneric node-variables (node)
   (:documentation
@@ -104,18 +104,23 @@ If the domain is infinite, return NIL.")
 ;;; after discrete node was initialized, default inverse-mapping attribute is created as a hashmap 
 (defmethod initialize-instance :after ((node discrete-node) &key)
   (unless (slot-boundp node 'cpt)
-    (let ((cpt (make-hash-table :test 'equal))
+    ;; create cpt-hashtable
+    (let ((cpt (make-cpt :hashtable (make-hash-table :test 'equal) :vars nil))
 	  (cpt-lhs (node-build-cpt node))
-	  (cpt-rhs (node-potential node)))
+	  (cpt-rhs (node-potential-rhs node)))
       (assert (= (length cpt-lhs) (length cpt-rhs)) ()
               "Left-hand side and right-hand side of CPT have different lengths:~%~W, ~W"
               cpt-lhs cpt-rhs)
       (dotimes (i (length cpt-lhs))
-	(setf (gethash (elt cpt-lhs i) cpt) (elt cpt-rhs i)))
-      (let ((sorted-cpt (make-hash-table :test 'equal)))
-        (iter (for (k v) in-hashtable cpt)
-          (setf (gethash (sort-node-values k) sorted-cpt) v))
-        (setf (node-cpt node) sorted-cpt)))))
+	(setf (gethash (elt cpt-lhs i) (cpt-hashtable cpt)) (elt cpt-rhs i)))
+      (let ((sorted-cpt (make-cpt :hashtable (make-hash-table :test 'equal) :vars nil)))
+        (iter (for (k v) in-hashtable (cpt-hashtable cpt))
+          (setf (gethash (sort-node-values k) (cpt-hashtable sorted-cpt)) v))
+        (setf (node-cpt node) sorted-cpt)))
+    ;; create cpt-vars
+    (let* ((named-val-list (node-get-named-value-lists node))
+	   (vars (mapcar #'(lambda (lst) (caar lst)) named-val-list)))
+      (setf (cpt-vars (node-cpt node)) vars))))
 
 (defmethod print-object ((node discrete-node) stream)
   (print-unreadable-object (node stream :type t :identity t)
@@ -154,7 +159,3 @@ If the domain is infinite, return NIL.")
 (defmethod node-discrete-p ((node discrete-node))
   (declare (ignorable node))
   t)
-
-;;; tests if given node is a discrete node
-;(defmethod node-discrete-p ((node node))
-;  (if (eql (type-of node) 'DISCRETE-NODE ) T nil ))

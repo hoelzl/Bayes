@@ -7,7 +7,11 @@
 
 (in-package #:bayes-implementation)
 
-(defun ve-pr1 (bayes-net nodes-to-keep nodes-to-eliminate-in-order)
+(defparameter *trivial-element* '(empty 0))
+(defparameter *neutral-addition-element* 0)
+(defparameter *neutral-multiplication-element* 1)
+
+#++(defun ve-pr1 (bayes-net nodes-to-keep nodes-to-eliminate-in-order)
   "Implementation of VE_PR1 of Darwiche on p. 134"
   (let ((s (cpts-of-bayes-net bayes-net)))
     (dolist (node-to-eliminate nodes-to-eliminate)
@@ -44,7 +48,7 @@
 			      named-lists)))
     (if (> (length named-lists) 0) 
 	(apply #'map-product #'list named-lists)
-	'((trivial-factor 0)))))
+	(list *trivial-element*))))
 
 (defun build-cpt-for-nodes (nodes init-potential-value)
   "returns a hashtable filled with all node-name and -value combinations of the given nodes as keys and with the init-potential-value as values"
@@ -65,21 +69,21 @@
 	(z nodes-to-eliminate))
     (let* ((base-cpt (node-cpt node-with-cpt-of-interest))
 	   (y (set-difference x z :test #'equal)) ; removes z from x; y contains the nodes of the result after elimination
-	   (result-cpt (build-cpt-for-nodes y 0)))
+	   (result-cpt (build-cpt-for-nodes y *neutral-addition-element*)))
       (loop for key being the hash-keys of result-cpt
 	    using (hash-value value)
 	    do 
 	       (loop for base-key being the hash-keys of base-cpt
 		     using (hash-value base-value)
 		     do 
-			(if (equal 
-			     (length (intersection key base-key :test #'equal)) 
-			     (length key))
+			(when (equal 
+                               (length (intersection key base-key :test #'equal)) 
+                               (length key))
 			    ;; y instantiation is contained in x instatiation -> sum
 			    ;; key is contained in base-key
-			    (setf (gethash key result-cpt) (+ base-value (gethash key result-cpt))))
-			(if (equal key '(trivial-factor 0)) 
-			    (setf (gethash key result-cpt) (+ base-value (gethash key result-cpt))))
+                          (setf (gethash key result-cpt) (+ base-value (gethash key result-cpt))))
+			(when (eq key *trivial-element*) 
+                          (setf (gethash key result-cpt) (+ base-value (gethash key result-cpt))))
 		     #+(or)(format t "The base-value associated with the base-key ~S is ~S~%" base-key base-value)
 		     )
 	    #+(or)(format t "The value associated with the key ~S is ~S~%" key value)
@@ -97,7 +101,7 @@
   (assert (> (length nodes-with-cpts-to-multiply) 1) () "You must provide at least two nodes to multiply their CPTs.")
   ;; z = union-list of all nodes that exist are involved in the CPTs
   (let* ((z (get-all-nodes-that-exist-in-the-cpts nodes-with-cpts-to-multiply))
-	 (result-cpt (build-cpt-for-nodes z 1)))
+	 (result-cpt (build-cpt-for-nodes z *neutral-multiplication-element*)))
     (loop for result-key being the hash-keys of result-cpt
 	  using (hash-value result-value)
 	  do

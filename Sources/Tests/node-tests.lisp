@@ -12,10 +12,10 @@
 (deftest test-discrete-node-type-1 ()
   (let ((n1 (make-discrete-node :domain-values '(a b c)
                                 :name 'n1
-                                :potential '(0.1 0.2 0.7)))
+                                :potential-rhs '(0.1 0.2 0.7)))
         (n2 (make-discrete-node :domain-values #(a b c)
                                 :name 'n2
-                                :potential '(0.4 0.2 0.4))))
+                                :potential-rhs '(0.4 0.2 0.4))))
     (is (equal (node-type n1) '(member a b c)))
     (is (equal (node-type n2) '(member a b c)))
 ))
@@ -23,13 +23,13 @@
 (deftest test-node-get-named-value-lists ()
   (let* ((n (make-discrete-node :domain-values '(1 2 3)
                                 :name 'N
-                                :potential '(0.1 0.15 0.1)))
+                                :potential-rhs '(0.1 0.15 0.1)))
          (domain-values-of-n '((N 1) (N 2) (N 3)))
          (expected-result-for-n (list domain-values-of-n)))
     (is (equal expected-result-for-n (node-get-named-value-lists n)))
     (let* ((m (make-discrete-node :domain-values '(6 7 8)
                                   :name 'M
-                                  :potential '(0.2 0.3 0.4 0.1 0.5 0.2 0.7 0.9 0.1)
+                                  :potential-rhs '(0.2 0.3 0.4 0.1 0.5 0.2 0.7 0.9 0.1)
                                   :parents (list n)))
            (domain-values-of-m '((M 6) (M 7) (M 8)))
            (expected-result-for-m (list domain-values-of-n domain-values-of-m)))
@@ -40,14 +40,14 @@
   (let ((node-a (make-discrete-node
                  :domain-values '(t nil)
                  :kind :nature
-                 :potential (make-array '(2) :initial-contents '(0.6 0.4)) 
+                 :potential-rhs (make-array '(2) :initial-contents '(0.6 0.4)) 
                  :name 'A)))
     (is (equal 0.6 (node-probability node-a '((A t)))))
     (is (equal 0.4 (node-probability node-a '((A nil)))))
     (let ((node-b (make-discrete-node
                    :domain-values '(t nil)
                    :kind :nature
-                   :potential (make-array '(4) :initial-contents '(0.2 0.8 0.75 0.25)) 
+                   :potential-rhs (make-array '(4) :initial-contents '(0.2 0.8 0.75 0.25)) 
                    :name 'B
                    :parents (list node-a))))
       (is (equal 0.2 (node-probability node-b '((A t) (B t)))))
@@ -65,14 +65,14 @@
       (let ((node-c (make-discrete-node 
                      :domain-values '(t nil)
                      :kind :nature 
-                     :potential (make-array '(4) :initial-contents '(0.8 0.2 0.1 0.9)) 
+                     :potential-rhs (make-array '(4) :initial-contents '(0.8 0.2 0.1 0.9)) 
                      :name 'C
                      :parents (list node-a))))
         (is (member node-a (node-parents node-c))) ; check if a is parent of c
         (let ((node-d (make-discrete-node 
                        :domain-values '(t nil) 
                        :kind :nature 
-                       :potential (make-array '(8) :initial-contents '(0.95 0.05 0.9 0.1 0.8 0.2 0 1)) 
+                       :potential-rhs (make-array '(8) :initial-contents '(0.95 0.05 0.9 0.1 0.8 0.2 0 1)) 
                        :name 'D
                        :parents (list node-b node-c))))
           (is (member node-b (node-parents node-d)))
@@ -103,7 +103,7 @@
           (let ((node-e (make-discrete-node 
                          :domain-values '(t nil)
                          :kind :nature 
-                         :potential (make-array '(4) :initial-contents '(0.7 0.3 0 1)) 
+                         :potential-rhs (make-array '(4) :initial-contents '(0.7 0.3 0 1)) 
                          :name 'E
                          :parents (list node-c))))
             (is (member node-c (node-parents node-e)))
@@ -120,9 +120,9 @@
 #+-(deftest test-node-index-1 ()
   (let ((node (make-discrete-node 
                :values '(a b)
-               :potential #2A((0.1 0.2 0.3) (0.4 0.5 0.6))
+               :potential-rhs #2A((0.1 0.2 0.3) (0.4 0.5 0.6))
                :parents (list (make-discrete-node
-                               :values '(1 2 3) :potential '(0.1 0.2 0.3))))))
+                               :values '(1 2 3) :potential-rhs '(0.1 0.2 0.3))))))
     (is (equal (compute-node-value-index node 'a '(1)) '(0 0)))
     (is (equal (compute-node-value-index node 'a '(2)) '(0 1)))
     (is (equal (compute-node-value-index node 'a '(3)) '(0 2)))
