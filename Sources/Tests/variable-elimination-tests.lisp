@@ -10,36 +10,9 @@
 (in-suite bayes-nodes-suite)
 
 (deftest test-sum-out-vars ()
-  (let* ((node-a (make-discrete-node
-                 :domain-values '(t nil)
-                 :kind :nature
-                 :potential (make-array '(2) 
-					:initial-contents '(0.6 0.4))
-                 :name 'A))
-	 (node-b (make-discrete-node
-                   :domain-values '(t nil)
-                   :kind :nature
-                   :potential (make-array '(4) 
-					  :initial-contents '(0.2 0.8 0.75 0.25)) 
-                   :name 'B
-                   :parents (list node-a)))
-	 (node-c (make-discrete-node 
-                     :domain-values '(t nil)
-                     :kind :nature 
-                     :potential (make-array '(4) 
-					    :initial-contents '(0.8 0.2 0.1 0.9)) 
-                     :name 'C
-                     :parents (list node-a)))
-	 (node-d (make-discrete-node 
-                       :domain-values '(t nil) 
-                       :kind :nature 
-                       :potential (make-array '(8) 
-					      :initial-contents '(0.95 0.05 0.9 0.1 0.8 0.2 0 1)) 
-                       :name 'D
-                       :parents (list node-b node-c)))
-	 (summed-out-d (sum-out-vars node-d (list node-d)))
-	 (summed-out-db (sum-out-vars node-d (list node-d node-b)))
-	 (summed-out-dbc (sum-out-vars node-d (list node-d node-b node-c))))
+  (let ((summed-out-d (sum-out-vars *test-node-d* (list *test-node-d*)))
+        (summed-out-db (sum-out-vars *test-node-d* (list *test-node-d* *test-node-b*)))
+        (summed-out-dbc (sum-out-vars *test-node-d* (list *test-node-d* *test-node-b* *test-node-c*))))
     (is (equal (hash-table-count summed-out-d) 4))
     (is (equal (hash-table-count summed-out-db) 2))
     (is (equal (hash-table-count summed-out-dbc) 1))
@@ -55,4 +28,4 @@
 	  using (hash-value value)
 	  do
 	     (is (= 4.0 value)))
-    (signals error (sum-out-vars node-d nil))))
+    (signals error (sum-out-vars *test-node-d* nil))))

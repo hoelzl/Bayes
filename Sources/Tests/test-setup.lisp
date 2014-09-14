@@ -1,0 +1,49 @@
+;;; -*- Mode: Lisp; common-lisp-style: poem -*-
+
+;;; Copyright (c) 2014 Thomas Rogge-Solti
+;;;
+;;; This file is licensed under the MIT license; see the file LICENSE in the root directory for
+;;; further information.
+
+(in-package #:bayes-tests)
+
+(defparameter *test-node-a* (make-discrete-node
+                             :domain-values '(t nil)
+                             :kind :nature
+                             :potential-rhs '(0.6 0.4) 
+                             :name 'A))
+
+(defparameter *test-node-b* (make-discrete-node
+                             :domain-values '(t nil)
+                             :kind :nature
+                             :potential-rhs '(0.2 0.8 0.75 0.25)
+                             :name 'B
+                             :parents (list *test-node-a*)))
+
+(defparameter *test-node-c* (make-discrete-node 
+                             :domain-values '(t nil)
+                             :kind :nature 
+                             :potential-rhs '(0.8 0.2 0.1 0.9)
+                             :name 'C
+                             :parents (list *test-node-a*)))
+
+(defparameter *test-node-d* (make-discrete-node 
+                             :domain-values '(t nil) 
+                             :kind :nature 
+                             :potential-rhs '(0.95 0.05 0.9 0.1 0.8 0.2 0 1)
+                             :name 'D
+                             :parents (list *test-node-b* *test-node-c*)))
+
+(defparameter *test-node-e* (make-discrete-node 
+                             :domain-values '(t nil)
+                             :kind :nature 
+                             :potential-rhs '(0.7 0.3 0 1)
+                             :name 'E
+                             :parents (list *test-node-c*)))
+
+(defparameter *test-bayes-net* (make-bayes-net
+                                :name "Test bayes net, based on Darwiche page 127"
+                                :nodes (list 
+                                        *test-node-a* *test-node-b* 
+                                        *test-node-c* *test-node-d*
+                                        *test-node-d*)))

@@ -10,12 +10,23 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
 
 (defparameter *bayes-test-exports*
-  '(#:compute-node-value-index
+  '(#:*my-bayes-net*
+    #:*node-a*
+    #:*node-b*
+    #:*node-c*
+    #:*node-d*
+    #:*node-e*
+    #:build-cpt-lhs-for-given-nodes
+    #:compute-node-value-index
+    #:cpt-contains-node
+    #:node-build-cpt
+    #:node-get-named-value-lists
+    #:node-get-named-value-list
     #:node-potential-dimensions
+    #:node-value-index-table
     #:process-class-slots
     #:process-class-slot
-    #:process-class-options
-    #:node-value-index-table))
+    #:process-class-options))
 
 (defparameter *bayes-utilities-exports*
   '(#:define-class
@@ -23,27 +34,17 @@
     #:values-for-type))
 
 (defparameter *bayes-exports*
-  '(#:*my-bayes-net*
-    #:*node-a*
-    #:*node-b*
-    #:*node-c*
-    #:*node-d*
-    #:*node-e*    
-    #:bayes-net    
-    #:constraint
+  '(#:bayes-net    
     #:discrete-node
     #:make-bayes-net
     #:make-discrete-node
     #:make-node
     #:multiply-factors
     #:node
-    #:node-build-cpt
     #:node-cardinality
     #:node-cpt
     #:node-discrete-p
     #:node-domain-values
-    #:node-get-named-value-lists
-    #:node-get-named-value-list
     #:node-kind
     #:node-name
     #:node-parents
@@ -51,9 +52,7 @@
     #:node-potential-dimensions
     #:node-probability
     #:node-type
-    #:node-values
     #:node-variables
-    #:potential-rhs
     #:print-potential
     #:sum-out-vars))
 )

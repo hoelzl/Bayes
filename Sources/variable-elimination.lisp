@@ -1,5 +1,4 @@
 ;;; -*- Mode: Lisp; common-lisp-style: poem -*-
-
 ;;; Copyright (c) 2014 Thomas Rogge-Solti
 ;;;
 ;;; This file is licensed under the MIT license; see the file LICENSE in the root directory for
@@ -11,54 +10,12 @@
 (defparameter *neutral-addition-element* 0)
 (defparameter *neutral-multiplication-element* 1)
 
-#++(defun ve-pr1 (bayes-net nodes-to-keep nodes-to-eliminate-in-order)
+(defun ve-pr1 (bayes-net nodes-to-keep nodes-to-eliminate-in-order)
   "Implementation of VE_PR1 of Darwiche on p. 134"
-  (let ((s (cpts-of-bayes-net bayes-net)))
-    (dolist (node-to-eliminate nodes-to-eliminate)
+  (let ((s (bn-cpts bayes-net)))
+    (dolist (node-to-eliminate nodes-to-eliminate-in-order)
       (let ((cpts-containing-elimination-node nil)) 
-        ))))
-
-(defun cpt-contains-node-p (cpt node)
-  "returns nil if the hashmap does not contain the node's name as a key"   
-  (let ((result nil))
-    (if (loop for key being the hash-key of cpt thereis (hashkey-contains-nodename-p key (node-name node)))
-      (setf result T))
-    result))
-
-(defun hashkey-contains-nodename-p (key name)
-  (let ((result nil))
-    (dolist (node-name-value-pair key)
-      (if (equal name (car node-name-value-pair))
-          (setf result T)))
-    result))
-
-(defun cpts-of-bayes-net (bayes-net)
-  "Returns a list of all CPTs (hastables containing the potentials) of the given bayes net"
-  (let ((nodes (bayes-net-nodes bayes-net))
-        (cpts nil))
-    (dolist (node nodes)
-      (setf cpts (cons (node-cpt node) 
-                       cpts)))
-    cpts ))
-
-(defun build-cpt-lhs-for-given-nodes (node-list)
-  (let ((named-lists '()))
-    (dolist (node node-list)
-      (setf named-lists (cons (node-get-named-value-list node) 
-			      named-lists)))
-    (if (> (length named-lists) 0) 
-	(apply #'map-product #'list named-lists)
-	(list *trivial-element*))))
-
-(defun build-cpt-for-nodes (nodes init-potential-value)
-  "returns a hashtable filled with all node-name and -value combinations of the given nodes as keys and with the init-potential-value as values"
-  (let* ((result-cpt (make-hash-table :test #'equal))
-	 (cpt-lhs (build-cpt-lhs-for-given-nodes nodes))
-	 (cpt-rhs (make-array (length cpt-lhs) :initial-element init-potential-value)))
-    (dotimes (i (length cpt-lhs))
-      (setf (gethash (elt cpt-lhs i) result-cpt) (elt cpt-rhs i)))
-    result-cpt))
-      
+        ))))      
 
 (defun sum-out-vars (node-with-cpt-of-interest nodes-to-eliminate)
   "implementation of SumOutVars on Darviche page 130"
@@ -122,16 +79,3 @@
     result-cpt
     ))
 
-(defun get-all-cpts-of-nodes (nodes)
-  "returns all cpts of given nodes as a list of hash-tables"
-  (let ((list-of-cpts nil))
-    (dolist (node nodes)
-      (setf list-of-cpts (cons (node-cpt node) list-of-cpts)))
-    list-of-cpts))
-
-(defun get-all-nodes-that-exist-in-the-cpts (node-list)
-  (let ((result-list nil))
-    (dolist (node node-list) 
-      (setf result-list (union result-list (list node)))
-      (setf result-list (union result-list (node-parents node))))
-    result-list))

@@ -1,0 +1,38 @@
+;;; -*- Mode: Lisp; common-lisp-style: poem -*-
+
+;;; Copyright (c) 2014 Thomas Rogge-Solti
+;;;
+;;; This file is licensed under the MIT license; see the file LICENSE in the root directory for
+;;; further information.
+
+(in-package #:bayes-tests)
+
+(in-suite bayes-cpt-suite)
+
+(deftest test-cpt-contains-node ()
+  (let ((cpt-d (node-cpt *test-node-d*))
+        (cpt-a (node-cpt *test-node-a*)))
+    ;; a contains a
+    (is (not (null (cpt-contains-node cpt-a *test-node-a*))))
+    ;; d contains b c and d
+    (is (not (null (cpt-contains-node cpt-d *test-node-b*))))
+    (is (not (null (cpt-contains-node cpt-d *test-node-c*))))
+    (is (not (null (cpt-contains-node cpt-d *test-node-d*))))
+    ;; d doesn't contain a or e
+    (is (null (cpt-contains-node cpt-d *test-node-a*)))
+    (is (null (cpt-contains-node cpt-d *test-node-e*)))))
+
+(deftest test-build-cpt-lhs-for-given-nodes ()
+  (let ((result (build-cpt-lhs-for-given-nodes (list *test-node-a* *test-node-b* *test-node-c*)))
+        (expected-result '(((A T) (B T) (C T)) 
+                           ((B T) (A NIL) (C T)) 
+                           ((B NIL) (A T) (C T)) 
+                           ((B NIL) (A NIL) (C T))
+                           ((A T) (B T) (C NIL)) 
+                           ((B T) (A NIL) (C NIL)) 
+                           ((B NIL) (A T) (C NIL)) 
+                           ((B NIL) (A NIL) (C NIL)))))
+    (loop for x in result
+          for y in expected-result 
+          do (dolist (el-in-x x)
+                (is (member el-in-x y :test-not #'set-exclusive-or))))))

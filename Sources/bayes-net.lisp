@@ -12,17 +12,25 @@
 (setf *read-default-float-format* 'double-float)
 
 (define-class bayes-net ()
-  (name
-  (nodes :initform '())))
+  ((name)
+   (nodes :initform '()))
+  (:conc-name bn))
 
-; Winter?
+(defgeneric bn-cpts (bayes-net)
+  (:documentation "Returns all CPT stuctures that belong to the given bayes-net.")
+  (:method (bayes-net)
+    (let ((nodes (bn-nodes bayes-net)))
+      (mapcar #'node-cpt nodes)
+      )))
+
+;; Winter?
 (defparameter *node-a* (make-discrete-node 
 			:domain-values '(t nil)
 			:kind :nature 
 			:potential-rhs (make-array 2 :initial-contents '(0.6 0.4)) 
 			:name 'A))
 
-; Sprinkler?
+;; Sprinkler?
 (defparameter *node-b* (make-discrete-node 
 			:domain-values '(t nil)
 			:kind :nature 
@@ -30,7 +38,7 @@
 			:name 'B
 			:parents (list *node-a*)))
 
-; Rain?
+;; Rain?
 (defparameter *node-c* (make-discrete-node 
 			:domain-values '(t nil)
 			:kind :nature 
@@ -38,7 +46,7 @@
 			:name 'C
 			:parents (list *node-a*)))
 
-; Wet Grass?
+;; Wet Grass?
 (defparameter *node-d* (make-discrete-node 
 			:domain-values '(t nil)
 			:kind :nature 
@@ -46,7 +54,7 @@
 			:name 'D
 			:parents (list *node-b* *node-c*)))
 
-; Slippery Road?
+;; Slippery Road?
 (defparameter *node-e* (make-discrete-node 
 			:domain-values '(t nil)
 			:kind :nature 
