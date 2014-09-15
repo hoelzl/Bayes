@@ -44,7 +44,7 @@
   (let ((list-of-cpts nil))
     (dolist (node nodes)
       (setf list-of-cpts (cons (node-cpt node) list-of-cpts)))
-    list-of-cpts))
+    (reverse list-of-cpts)))
 
 (defun get-all-nodes-that-exist-in-the-cpts (node-list)
   (let ((result-list nil))
