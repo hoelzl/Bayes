@@ -40,11 +40,8 @@
     (make-cpt :hashtable result-cpt-hashtable :vars vars)))
 
 (defun get-all-cpts-of-nodes (nodes)
-  "returns all cpts of given nodes as a list of hash-tables"
-  (let ((list-of-cpts nil))
-    (dolist (node nodes)
-      (setf list-of-cpts (cons (node-cpt node) list-of-cpts)))
-    (reverse list-of-cpts)))
+  "returns all cpts of given nodes"
+  (mapcar #'node-cpt nodes))
 
 (defun get-all-nodes-that-exist-in-the-cpts (node-list)
   (let ((result-list nil))
