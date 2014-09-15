@@ -14,8 +14,14 @@
   "Implementation of VE_PR1 of Darwiche on p. 134"
   (let ((s (bn-cpts bayes-net)))
     (dolist (node-to-eliminate nodes-to-eliminate-in-order)
-      (let ((cpts-containing-elimination-node nil)) 
-        ))))      
+      (let ((cpts-containing-elimination-node (cpts-containing-node s node-to-eliminate)))
+        (let ((f (multiply-factors cpts-containing-elimination-node)))
+          (let ((f-at-i (sum-out-var f node-to-eliminate)))
+            ;; replace all factors in S that were multiplied before by f-at-i
+          
+            ))))
+    ;; return multiplication of all factors in S
+    ))      
 
 (defun sum-out-vars (node-with-cpt-of-interest nodes-to-eliminate)
   "implementation of SumOutVars on Darviche page 130"

@@ -19,6 +19,32 @@
 	(vars (cpt-vars cpt)))
     (member var vars :test #'equal)))
 
+(defun cpt-contains-var-p (cpt var)
+  "checks if the cpt contains the var in its vars"
+  (member var (cpt-vars cpt) :test #'equal))
+
+(defun cpt-contains-node-p (cpt node)
+  "checks if the cpt contains the node's name in its vars"
+  (let ((var (node-name node)))
+    (cpt-contains-var-p cpt var)))
+
+(defun cpt-containing-var (cpt var)
+  "returns the cpt if it contains the given var"
+  (if (cpt-contains-var-p cpt var) 
+      cpt 
+      nil))
+
+(defun cpts-containing-var (cpts var)
+  (let ((result nil))
+    (dolist (cpt cpts) 
+      (when (cpt-contains-var-p cpt var)
+	(setf result (cons cpt result))))
+    result))
+
+(defun cpts-containing-node (cpts node)
+  "returns all cpts that contain the node's name in their vars"
+  (cpts-containing-var cpts (node-name node)))
+
 (defun build-cpt-lhs-for-given-nodes (node-list)
   "creates all possible combinations of node-name and node-value pairs -> lhs of a factor"
   (let ((named-lists '()))
