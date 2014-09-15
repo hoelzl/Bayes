@@ -17,8 +17,11 @@
     #:*node-d*
     #:*node-e*
     #:build-cpt-lhs-for-given-nodes
+    #:build-cpt-for-nodes
     #:compute-node-value-index
     #:cpt-contains-node
+    #:cpt-hashtable
+    #:make-cpt
     #:node-build-cpt
     #:node-get-named-value-lists
     #:node-get-named-value-list

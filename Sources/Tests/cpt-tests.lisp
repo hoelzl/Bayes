@@ -36,3 +36,16 @@
           for y in expected-result 
           do (dolist (el-in-x x)
                 (is (member el-in-x y :test-not #'set-exclusive-or))))))
+
+(deftest test-build-cpt-for-nodes ()
+  (let ((cpt-for-nodes-bcd (build-cpt-for-nodes (list *test-node-b* *test-node-c* *test-node-d*) 0))
+        (expected-cpt-for-nodes-bcd (make-cpt :hashtable (make-hash-table :test #'equal) :vars '(B C D))))
+    (setf (gethash '((B T) (C T) (D T)) (cpt-hashtable expected-cpt-for-nodes-bcd)) 0)
+    (setf (gethash '((B T) (C T) (D nil)) (cpt-hashtable expected-cpt-for-nodes-bcd)) 0)
+    (setf (gethash '((B T) (C nil) (D T)) (cpt-hashtable expected-cpt-for-nodes-bcd)) 0)
+    (setf (gethash '((B T) (C nil) (D nil)) (cpt-hashtable expected-cpt-for-nodes-bcd)) 0)
+    (setf (gethash '((B nil) (C T) (D T)) (cpt-hashtable expected-cpt-for-nodes-bcd)) 0)
+    (setf (gethash '((B nil) (C T) (D nil)) (cpt-hashtable expected-cpt-for-nodes-bcd)) 0)
+    (setf (gethash '((B nil) (C nil) (D T)) (cpt-hashtable expected-cpt-for-nodes-bcd)) 0)
+    (setf (gethash '((B nil) (C nil) (D nil)) (cpt-hashtable expected-cpt-for-nodes-bcd)) 0)
+    (is (equalp cpt-for-nodes-bcd expected-cpt-for-nodes-bcd))))
