@@ -45,7 +45,7 @@
   "returns all cpts that contain the node's name in their vars"
   (cpts-containing-var cpts (node-name node)))
 
-(defun build-cpt-lhs-for-given-nodes (node-list)
+(defun build-cpt-lhs-for-given-nodes (node-list empty-element)
   "creates all possible combinations of node-name and node-value pairs -> lhs of a factor"
   (let ((named-lists '()))
     (dolist (node node-list)
@@ -53,12 +53,12 @@
 				(list (node-get-named-value-list node)))))
     (if (> (length named-lists) 0) 
 	(apply #'map-product #'list named-lists)
-	(list *trivial-element*))))
+	(list empty-element))))
 
-(defun build-cpt-for-nodes (nodes init-potential-value)
+(defun build-cpt-for-nodes (nodes init-potential-value empty-element)
   "returns a hashtable filled with all node-name and -value combinations of the given nodes as keys and with the init-potential-value as values"
   (let* ((result-cpt-hashtable (make-hash-table :test #'equal))
-	 (cpt-lhs (build-cpt-lhs-for-given-nodes nodes))
+	 (cpt-lhs (build-cpt-lhs-for-given-nodes nodes empty-element))
 	 (cpt-rhs (make-array (length cpt-lhs) :initial-element init-potential-value))
 	 (vars (mapcar (lambda (x) (node-name x)) nodes)))
     (dotimes (i (length cpt-lhs))

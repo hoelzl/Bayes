@@ -9,7 +9,7 @@
 
 (in-suite bayes-nodes-suite)
 
-(deftest test-sum-out-vars ()
+(deftest test-sum-out-vars (),
   (let ((summed-out-d (sum-out-vars *test-node-d* (list *test-node-d*)))
         (summed-out-db (sum-out-vars *test-node-d* (list *test-node-d* *test-node-b*)))
         (summed-out-dbc (sum-out-vars *test-node-d* (list *test-node-d* *test-node-b* *test-node-c*))))

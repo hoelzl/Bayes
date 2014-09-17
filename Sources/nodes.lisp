@@ -28,14 +28,17 @@
 (defgeneric node-type (node)
   (:documentation "Return the type of NODE (as Lisp type)."))
 
-(defgeneric node-domain-values (node)
-  (:documentation "Return the possible values for node's domain.")
-  (:method (node)
-    (values-for-type (node-type node))))
+;;; it casts node-values into a list and returns something like (MEMBER 1 2 3)
 
-(defgeneric values-for-type (type)
+;; todo: delete?
+#+(or)(defgeneric values-for-type (type)
   (:documentation "Return all values for type, if there are finitely many."))
 
+
+(defgeneric node-domain-values (node)
+  (:documentation "Return the possible values for node's domain.")
+  #+(or)(:method (node)
+    (values-for-type (node-type node))))
 
 (defgeneric node-cardinality (node)
   (:documentation "Return the number of possible values in the node's domain.
@@ -82,8 +85,8 @@ If the domain is infinite, return NIL.")
 
 (defgeneric node-variables (node)
   (:documentation
-   "Returns all variables (names of nodes) that are involved in the potential of the given node")
-  (:method (node)
+   "Returns all variables that are involved in the potential of the given node")
+  #+(or)(:method (node)
     (let ((result '())
 	  (parents (node-parents node)))
       (iter (for parent in-sequence parents)
@@ -96,13 +99,22 @@ If the domain is infinite, return NIL.")
 ;;; ==============
 
 (define-class discrete-node (node)
-  ((domain-values :type sequence)
-   (cpt))
+  ((var :type discrete-var)
+   cpt)
   (:conc-name node))
+
+(defmethod node-type ((node discrete-node))
+  `(member ,@(coerce (var-domain-values (node-var node)) 'list)))
+
+(defmethod node-domain-values ((node discrete-node))
+  (var-domain-values (node-var node)))
 
 
 ;;; after discrete node was initialized, default inverse-mapping attribute is created as a hashmap 
-(defmethod initialize-instance :after ((node discrete-node) &key)
+(defmethod initialize-instance :after ((node discrete-node) &key var)
+  ;; create bidirectional link between node and var
+  (setf (var-node var) node)
+  ;; create cpt 
   (unless (slot-boundp node 'cpt)
     ;; create cpt-hashtable
     (let ((cpt (make-cpt :hashtable (make-hash-table :test 'equal) :vars nil))
@@ -121,6 +133,9 @@ If the domain is infinite, return NIL.")
     (let* ((named-val-list (node-get-named-value-lists node))
 	   (vars (mapcar #'(lambda (lst) (caar lst)) named-val-list)))
       (setf (cpt-vars (node-cpt node)) vars))))
+
+(defmethod node-variables ((node discrete-node))
+  (cpt-vars (node-cpt node)))
 
 (defmethod print-object ((node discrete-node) stream)
   (print-unreadable-object (node stream :type t :identity t)
@@ -151,10 +166,6 @@ If the domain is infinite, return NIL.")
            (lambda (value)
              (list name value))
            values))))
-  
-;;; it casts node-values into a list and returns something like (MEMBER 1 2 3)
-(defmethod node-type ((node discrete-node))
-  `(member ,@(coerce (node-domain-values node) 'list)))
 
 (defmethod node-discrete-p ((node discrete-node))
   (declare (ignorable node))

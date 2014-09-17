@@ -8,37 +8,42 @@
 (in-package #:bayes-tests)
 
 (defparameter *test-node-a* (make-discrete-node
-                             :domain-values '(t nil)
+                             :name "Winter?"
+                             :var (make-discrete-var :name 'A 
+                                                     :domain-values '(t nil))
                              :kind :nature
                              :potential-rhs '(0.6 0.4) 
                              :name 'A))
 
 (defparameter *test-node-b* (make-discrete-node
-                             :domain-values '(t nil)
+                             :name "Sprinkler?"
+                             :var (make-discrete-var :name 'B 
+                                                     :domain-values '(t nil))
                              :kind :nature
                              :potential-rhs '(0.2 0.8 0.75 0.25)
-                             :name 'B
                              :parents (list *test-node-a*)))
 
 (defparameter *test-node-c* (make-discrete-node 
-                             :domain-values '(t nil)
+                             :name "Rain?"
+                             :var (make-discrete-var :name 'C 
+                                                     :domain-values '(t nil))
                              :kind :nature 
                              :potential-rhs '(0.8 0.2 0.1 0.9)
-                             :name 'C
                              :parents (list *test-node-a*)))
 
-(defparameter *test-node-d* (make-discrete-node 
-                             :domain-values '(t nil) 
+(defparameter *test-node-d* (make-discrete-node
+                             :name "Wet Grass?"
+                             :var (make-discrete-var :name 'D 
+                                                     :domain-values '(t nil))
                              :kind :nature 
                              :potential-rhs '(0.95 0.05 0.9 0.1 0.8 0.2 0 1)
-                             :name 'D
                              :parents (list *test-node-b* *test-node-c*)))
 
-(defparameter *test-node-e* (make-discrete-node 
-                             :domain-values '(t nil)
+(defparameter *test-node-e* (make-discrete-node
+                             :name "Slippery Road?"
+                             :var (make-discrete-var :name 'E :domain-values '(t nil))
                              :kind :nature 
                              :potential-rhs '(0.7 0.3 0 1)
-                             :name 'E
                              :parents (list *test-node-c*)))
 
 (defparameter *test-bayes-net* (make-bayes-net

@@ -24,43 +24,44 @@
       )))
 
 ;; Winter?
-(defparameter *node-a* (make-discrete-node 
-			:domain-values '(t nil)
-			:kind :nature 
-			:potential-rhs (make-array 2 :initial-contents '(0.6 0.4)) 
-			:name 'A))
+(defparameter *node-a* (make-discrete-node
+                             :name "Winter?"
+                             :var (make-discrete-var :name 'A 
+                                                     :domain-values '(t nil))
+                             :kind :nature
+                             :potential-rhs '(0.6 0.4)))
 
-;; Sprinkler?
-(defparameter *node-b* (make-discrete-node 
-			:domain-values '(t nil)
-			:kind :nature 
-			:potential-rhs (make-array 4 :initial-contents '(0.2 0.8 0.75 0.25)) 
-			:name 'B
-			:parents (list *node-a*)))
+(defparameter *node-b* (make-discrete-node
+                             :name "Sprinkler?"
+                             :var (make-discrete-var :name 'B 
+                                                     :domain-values '(t nil))
+                             :kind :nature
+                             :potential-rhs '(0.2 0.8 0.75 0.25)
+                             :parents (list *node-a*)))
 
-;; Rain?
 (defparameter *node-c* (make-discrete-node 
-			:domain-values '(t nil)
-			:kind :nature 
-			:potential-rhs (make-array 4 :initial-contents '(0.8 0.2 0.1 0.9)) 
-			:name 'C
-			:parents (list *node-a*)))
+                             :name "Rain?"
+                             :var (make-discrete-var :name 'C 
+                                                     :domain-values '(t nil))
+                             :kind :nature 
+                             :potential-rhs '(0.8 0.2 0.1 0.9)
+                             :parents (list *node-a*)))
 
-;; Wet Grass?
-(defparameter *node-d* (make-discrete-node 
-			:domain-values '(t nil)
-			:kind :nature 
-			:potential-rhs (make-array 8 :initial-contents '(0.95 0.05 0.9 0.1 0.8 0.2 0 1)) 
-			:name 'D
-			:parents (list *node-b* *node-c*)))
+(defparameter *node-d* (make-discrete-node
+                             :name "Wet Grass?"
+                             :var (make-discrete-var :name 'D 
+                                                     :domain-values '(t nil))
+                             :kind :nature 
+                             :potential-rhs '(0.95 0.05 0.9 0.1 0.8 0.2 0 1)
+                             :parents (list *node-b* *node-c*)))
 
-;; Slippery Road?
-(defparameter *node-e* (make-discrete-node 
-			:domain-values '(t nil)
-			:kind :nature 
-			:potential-rhs (make-array 4 :initial-contents '(0.7 0.3 0 1)) 
-			:name 'E
-			:parents (list *node-c*)))
+(defparameter *node-e* (make-discrete-node
+                             :name "Slippery Road?"
+                             :var (make-discrete-var :name 'E 
+						     :domain-values '(t nil))
+                             :kind :nature 
+                             :potential-rhs '(0.7 0.3 0 1)
+                             :parents (list *node-c*)))
 
 (defparameter *my-bayes-net* (make-bayes-net 
 			      :name "Bayesnet from Adnan Darwiche on page 127" 

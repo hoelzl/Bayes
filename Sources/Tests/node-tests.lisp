@@ -10,25 +10,25 @@
 (in-suite bayes-nodes-suite)
 
 (deftest test-discrete-node-type-1 ()
-  (let ((n1 (make-discrete-node :domain-values '(a b c)
-                                :name 'n1
+  (let ((n1 (make-discrete-node :name 'list-values
+                                :var (make-discrete-var :name 'A :domain-values '(a b c)) 
                                 :potential-rhs '(0.1 0.2 0.7)))
-        (n2 (make-discrete-node :domain-values #(a b c)
-                                :name 'n2
+        (n2 (make-discrete-node :name 'vector-values
+                                :var (make-discrete-var :name 'B :domain-values #(a b c))
                                 :potential-rhs '(0.4 0.2 0.4))))
     (is (equal (node-type n1) '(member a b c)))
     (is (equal (node-type n2) '(member a b c)))
 ))
 
 (deftest test-node-get-named-value-lists ()
-  (let* ((n (make-discrete-node :domain-values '(1 2 3)
-                                :name 'N
+  (let* ((n (make-discrete-node :name 'N
+                                :var (make-discrete-var :name 'N :domain-values '(1 2 3))
                                 :potential-rhs '(0.1 0.15 0.1)))
          (domain-values-of-n '((N 1) (N 2) (N 3)))
          (expected-result-for-n (list domain-values-of-n)))
     (is (equal expected-result-for-n (node-get-named-value-lists n)))
-    (let* ((m (make-discrete-node :domain-values '(6 7 8)
-                                  :name 'M
+    (let* ((m (make-discrete-node :name 'M
+                                  :var (make-disrete-var :name 'M :domain-values '(6 7 8))
                                   :potential-rhs '(0.2 0.3 0.4 0.1 0.5 0.2 0.7 0.9 0.1)
                                   :parents (list n)))
            (domain-values-of-m '((M 6) (M 7) (M 8)))

@@ -10,7 +10,7 @@
   :components ((:file "packages")
                (:file "macros")
                (:file "utilities")
-               (:file "variables")
+               (:file "vars")
                (:file "potentials")
 	       (:file "cpts")
                (:file "nodes")

@@ -7,6 +7,16 @@
 
 (in-package #:bayes-implementation)
 
+;; a variable 
+(define-class var ()
+  (name 
+   node))
+
+(define-class discrete-var (var)
+  ((domain-values :type sequence)
+   (cpt :type cpt))
+  (:conc-name var))
+
 (defvar *random-variable-counter* -1)
 
 (define-class random-variable ()

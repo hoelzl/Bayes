@@ -39,9 +39,12 @@
 (defparameter *bayes-exports*
   '(#:bayes-net    
     #:discrete-node
+    #:discrete-var
     #:make-bayes-net
     #:make-discrete-node
+    #:make-discrete-var
     #:make-node
+    #:make-var
     #:multiply-factors
     #:node
     #:node-cardinality
@@ -57,7 +60,8 @@
     #:node-type
     #:node-variables
     #:print-potential
-    #:sum-out-vars))
+    #:sum-out-vars
+    #:var))
 )
 
 (defpackage #:bayes-implementation
