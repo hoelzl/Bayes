@@ -31,3 +31,7 @@
 (defsuite (bayes-cpt-suite
            :in bayes-suite
            :documentation "Tests for CPTs."))
+
+(defsuite (bayes-variable-elimination-suite
+           :in bayes-suite
+           :documentation "Testing variable elimination and parts of it."))

@@ -22,6 +22,7 @@
     #:compute-node-value-index
     #:cpt-contains-node-p
     #:cpt-hashtable
+    #:cpt-probability
     #:make-cpt
     #:node-build-cpt
     #:node-get-named-value-lists

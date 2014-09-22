@@ -13,6 +13,15 @@
   (hashtable
   (vars :type sequence)))
 
+(defun cpt-sort-value-list (value-list)
+  "sorts '((B T)(A T)) to '((A T)(B T))"
+  (sort (copy-list value-list) #'string< :key #'first))
+
+(defun cpt-probability (cpt cpt-values)
+  "Compute the probability of the given instantiation of a given tuple."
+  (let ((ordered-cpt-values (cpt-sort-value-list cpt-values)))
+    (gethash ordered-cpt-values (cpt-hashtable cpt))))
+
 (defun cpt-contains-node-p (cpt node)
   "checks if the cpt contains the node"
   (let* ((vars (cpt-vars cpt))
@@ -60,15 +69,24 @@
 	(apply #'map-product #'list named-lists)
 	(list empty-element))))
 
+(defun sort-cpt (cpt)
+  (if (null (cpt-vars cpt))
+      cpt ; return cpt if it is empty / trivial from beginning (sorting empty list results in exception otherwise)
+      (let ((sorted-cpt (make-cpt :hashtable (make-hash-table :test 'equal) :vars (cpt-vars cpt))))
+	(iter (for (k v) in-hashtable (cpt-hashtable cpt))
+	  (setf (gethash (cpt-sort-value-list k) (cpt-hashtable sorted-cpt)) v))
+	sorted-cpt)))
+
 (defun build-cpt-for-nodes (nodes init-potential-value empty-element)
   "returns a hashtable filled with all var-name and -value combinations of the given nodes as keys and with the init-potential-value as values"
-  (let* ((result-cpt-hashtable (make-hash-table :test #'equal))
+  (let* ((result-cpt (make-cpt :hashtable (make-hash-table :test #'equal) :vars nil))
 	 (cpt-lhs (build-cpt-lhs-for-given-nodes nodes empty-element))
 	 (cpt-rhs (make-array (length cpt-lhs) :initial-element init-potential-value))
 	 (vars (mapcar (lambda (x) (node-var x)) nodes)))
     (dotimes (i (length cpt-lhs))
-      (setf (gethash (elt cpt-lhs i) result-cpt-hashtable) (elt cpt-rhs i)))
-    (make-cpt :hashtable result-cpt-hashtable :vars vars)))
+      (setf (gethash (elt cpt-lhs i) (cpt-hashtable result-cpt)) (elt cpt-rhs i)))
+    (setf (cpt-vars result-cpt) vars)
+    (sort-cpt result-cpt)))
 
 (defun build-cpt-for-vars (vars init-potential-value empty-element)
   "this is just a wrapper function for more comfort"

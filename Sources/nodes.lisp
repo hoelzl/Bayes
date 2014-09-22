@@ -67,7 +67,7 @@ If the domain is infinite, return NIL.")
 ;; the lookup is commutative
 #+(or) (node-probability *node-b* '((B t)(A t))) ;; -> 0.2 -> T
 (defgeneric node-probability (node node-values)
-  (:documentation "Compute the probability of the given instatiation of a tuple of the nodes cpt. 
+  (:documentation "Compute the probability of the given instantiation of a tuple of the nodes cpt. 
    The value list is an alist of node-value pairs, i.e., given in the form:
    ((p1.name p1.value) (p2.name p2.value) ... (node.name node.value))")
   (:method (node node-values)
@@ -123,22 +123,18 @@ If the domain is infinite, return NIL.")
       (assert (= (length cpt-lhs) (length cpt-rhs)) ()
               "Left-hand side and right-hand side of CPT have different lengths:~%~W, ~W"
               cpt-lhs cpt-rhs)
+      ;; save cpt lhs with rhs
       (dotimes (i (length cpt-lhs))
 	(setf (gethash (elt cpt-lhs i) (cpt-hashtable cpt)) (elt cpt-rhs i)))
-      (let ((sorted-cpt (make-cpt :hashtable (make-hash-table :test 'equal) :vars nil)))
-        (iter (for (k v) in-hashtable (cpt-hashtable cpt))
-          (setf (gethash (sort-node-values k) (cpt-hashtable sorted-cpt)) v))
-        (setf (node-cpt node) sorted-cpt)))
-    ;; create cpt-vars
-    #+(or)(let* ((named-val-list (node-get-named-value-lists node))
-	   (vars (mapcar #'(lambda (lst) (caar lst)) named-val-list)))
-      (setf (cpt-vars (node-cpt node)) vars))
-    (let ((vars nil)
-	  (parents (node-parents node)))
-      (dolist (parent parents)
-	(setf vars (cons (node-var parent) vars)))
-      (setf vars (cons (node-var node) vars))
-      (setf (cpt-vars (node-cpt node)) vars))))
+      ;; sort what was just saved for quick retrieval
+      (setf (node-cpt node) (sort-cpt cpt))
+      ;; create cpt-vars
+      (let ((vars nil)
+	    (parents (node-parents node)))
+	(dolist (parent parents)
+	  (setf vars (cons (node-var parent) vars)))
+	(setf vars (cons (node-var node) vars))
+	(setf (cpt-vars (node-cpt node)) vars)))))
 
 (defmethod node-variables ((node discrete-node))
   (cpt-vars (node-cpt node)))

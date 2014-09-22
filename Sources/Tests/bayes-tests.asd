@@ -16,4 +16,5 @@
                (:file "utilities-tests")
                (:file "node-tests")
 	       (:file "potential-tests")
-	       (:file "cpt-tests")))
+	       (:file "cpt-tests")
+	       (:file "variable-elimination-tests")))
