@@ -70,6 +70,11 @@
       (setf (gethash (elt cpt-lhs i) result-cpt-hashtable) (elt cpt-rhs i)))
     (make-cpt :hashtable result-cpt-hashtable :vars vars)))
 
+(defun build-cpt-for-vars (vars init-potential-value empty-element)
+  "this is just a wrapper function for more comfort"
+  (let ((nodes (mapcar #'var-node vars)))
+    (build-cpt-for-nodes nodes init-potential-value empty-element)))
+
 (defun get-all-cpts-of-nodes (nodes)
   "returns all cpts of given nodes"
   (mapcar #'node-cpt nodes))

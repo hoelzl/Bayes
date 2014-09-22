@@ -23,18 +23,21 @@
     ;; return multiplication of all factors in S
     ))
 
-#+-(defun sum-out-vars (cpt vars-to-sum-out)
+(defun sum-out-vars (cpt vars-to-sum-out)
   "implementation of SumOutVars on Darviche page 130"
   (if (null vars-to-sum-out) 
-      cpt ; return cpt if there are no vars to be summed out
-      (let ((x (cpt-vars cpt))  
-            (z cpts-to-eliminatevars-to-sum-out))
-        (let* ((y (set-difference x z :test #'equal)) ; removes z from x; y contains the nodes of the result after elimination
-               (result-cpt (build-cpt-for-nodes y *neutral-addition-element* *empty-element*)))
-          (loop for key being the hash-keys of result-cpt
+      ;; return cpt if there are no vars to be summed out
+      cpt
+      ;; else: sum out!
+      (let ((x (cpt-vars cpt))    ; x = all vars  
+            (z vars-to-sum-out))  ; z = vars to sum out
+        ;; y = vars to keep
+        (let* ((y (set-difference x z :test #'equal)) ; removes z from x
+               (result-cpt (build-cpt-for-vars y *neutral-addition-element* *empty-element*)))
+          (loop for key being the hash-keys of (cpt-hashtable result-cpt)
                 using (hash-value value)
                 do 
-                   (loop for base-key being the hash-keys of cpt
+                   (loop for base-key being the hash-keys of (cpt-hashtable cpt)
                          using (hash-value base-value)
                          do 
                             (when (equal 
@@ -42,15 +45,17 @@
                                    (length key))
                               ;; y instantiation is contained in x instatiation -> sum
                               ;; key is contained in base-key
-                              (setf (gethash key result-cpt) (+ base-value (gethash key result-cpt))))
+                              (setf (gethash key (cpt-hashtable result-cpt)) 
+                                    (+ base-value (gethash key (cpt-hashtable result-cpt)))))
                             (when (eq key *empty-element*) 
-                              (setf (gethash key result-cpt) (+ base-value (gethash key result-cpt))))
+                              (setf (gethash key (cpt-hashtable result-cpt))
+                                    (+ base-value (gethash key (cpt-hashtable result-cpt)))))
                             #+(or)(format t "The base-value associated with the base-key ~S is ~S~%" base-key base-value)
                          )
                    #+(or)(format t "The value associated with the key ~S is ~S~%" key value)
                 )
           ;; print the result
-          (loop for key being the hash-keys of result-cpt
+          (loop for key being the hash-keys of (cpt-hashtable result-cpt)
                 using (hash-value value)
                 do
                    (format t "The value associated with the key ~S is ~S~%" key value))
