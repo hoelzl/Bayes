@@ -82,6 +82,13 @@
 (defun get-all-nodes-that-exist-in-the-cpts (node-list)
   (let ((result-list nil))
     (dolist (node node-list) 
-      (setf result-list (union result-list (list node)))
-      (setf result-list (union result-list (node-parents node))))
+      (setf result-list (union result-list (list node) :test #'equal))
+      (setf result-list (union result-list (node-parents node) :test #'equal)))
     result-list))
+
+(defun get-union-of-vars-from-cpts (cpts)
+  "returns the union of all vars of the given cpts"
+  (let ((result nil))
+    (dolist (cpt cpts)
+      (setf result (union result (cpt-vars cpt) :test #'equal)))
+    result))
