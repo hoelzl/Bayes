@@ -52,4 +52,5 @@
     (setf (gethash '((B nil) (C T) (D nil)) (cpt-hashtable expected-cpt-for-nodes-bcd)) 0)
     (setf (gethash '((B nil) (C nil) (D T)) (cpt-hashtable expected-cpt-for-nodes-bcd)) 0)
     (setf (gethash '((B nil) (C nil) (D nil)) (cpt-hashtable expected-cpt-for-nodes-bcd)) 0)
-    (is (equalp cpt-for-nodes-bcd expected-cpt-for-nodes-bcd))))
+    (is (equalp (cpt-hashtable cpt-for-nodes-bcd) (cpt-hashtable expected-cpt-for-nodes-bcd)))
+    (is (equal (cpt-vars cpt-for-nodes-bcd) (cpt-vars expected-cpt-for-nodes-bcd)))))
