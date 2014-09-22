@@ -9,23 +9,26 @@
 
 (in-suite bayes-nodes-suite)
 
-(deftest test-sum-out-vars (),
-  (let ((summed-out-d (sum-out-vars *test-node-d* (list *test-node-d*)))
-        (summed-out-db (sum-out-vars *test-node-d* (list *test-node-d* *test-node-b*)))
-        (summed-out-dbc (sum-out-vars *test-node-d* (list *test-node-d* *test-node-b* *test-node-c*))))
-    (is (equal (hash-table-count summed-out-d) 4))
-    (is (equal (hash-table-count summed-out-db) 2))
-    (is (equal (hash-table-count summed-out-dbc) 1))
-    (loop for key being the hash-keys of summed-out-d
+(deftest test-sum-out-vars ()
+  (let* ((var-d (node-var *test-node-d*))
+         (var-b (node-var *test-node-b*))
+         (var-c (node-var *test-node-c*))
+         (summed-out-d (sum-out-vars (node-cpt *test-node-d*) (list var-d)))
+         (summed-out-db (sum-out-vars (node-cpt *test-node-d*) (list var-d var-b)))
+         (summed-out-dbc (sum-out-vars (node-cpt *test-node-d*) (list var-d var-b var-c))))
+    (is (equal (hash-table-count (cpt-hashtable summed-out-d)) 4))
+    (is (equal (hash-table-count (cpt-hashtable summed-out-db)) 2))
+    (is (equal (hash-table-count (cpt-hashtable summed-out-dbc)) 1))
+    (loop for key being the hash-keys of (cpt-hashtable summed-out-d)
 	  using (hash-value value)
 	  do
 	     (is (= 1.0 value)))
-    (loop for key being the hash-keys of summed-out-db
+    (loop for key being the hash-keys of (cpt-hashtable summed-out-db)
 	  using (hash-value value)
 	  do
 	     (is (= 2.0 value)))
-    (loop for key being the hash-keys of summed-out-dbc
+    (loop for key being the hash-keys of (cpt-hashtable summed-out-dbc)
 	  using (hash-value value)
 	  do
 	     (is (= 4.0 value)))
-    (signals error (sum-out-vars *test-node-d* nil))))
+    (is (equal (sum-out-vars (node-cpt *test-node-d*) nil) (node-cpt *test-node-d*)))))
