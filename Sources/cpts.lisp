@@ -9,28 +9,29 @@
 (in-package #:bayes-implementation)
 
 ;;; a cpt contains a hashtable for the given vars
-(defstruct cpt
-  hashtable
-  vars)
-
-(defun cpt-contains-node (cpt node)
-  "checks if the cpt contains the node's name in its vars"
-  (let ((var (node-name node))
-	(vars (cpt-vars cpt)))
-    (member var vars :test #'equal)))
-
-(defun cpt-contains-var-p (cpt var)
-  "checks if the cpt contains the var in its vars"
-  (member var (cpt-vars cpt) :test #'equal))
+(define-class cpt ()
+  (hashtable
+  (vars :type sequence)))
 
 (defun cpt-contains-node-p (cpt node)
-  "checks if the cpt contains the node's name in its vars"
-  (let ((var (node-name node)))
-    (cpt-contains-var-p cpt var)))
+  "checks if the cpt contains the node"
+  (let* ((vars (cpt-vars cpt))
+	 (nodes (mapcar #'var-node vars)))
+    (member node nodes :test #'equal)))
+
+(defun cpt-contains-var-p (cpt var)
+  "checks if the cpt contains the var"
+  (member var (cpt-vars cpt) :test #'equal))
 
 (defun cpt-containing-var (cpt var)
   "returns the cpt if it contains the given var"
   (if (cpt-contains-var-p cpt var) 
+      cpt 
+      nil))
+
+(defun cpt-containing-node (cpt node)
+  "returns the cpt if it contains the given var"
+  (if (cpt-contains-node-p cpt node) 
       cpt 
       nil))
 
@@ -42,8 +43,12 @@
     result))
 
 (defun cpts-containing-node (cpts node)
-  "returns all cpts that contain the node's name in their vars"
-  (cpts-containing-var cpts (node-name node)))
+  "returns all cpts that contain the node"
+  (let ((result nil))
+    (dolist (cpt cpts)
+      (when (cpt-contains-node-p cpt node)
+	(setf result (cons cpt result))))
+    result))
 
 (defun build-cpt-lhs-for-given-nodes (node-list empty-element)
   "creates all possible combinations of node-name and node-value pairs -> lhs of a factor"
@@ -56,11 +61,11 @@
 	(list empty-element))))
 
 (defun build-cpt-for-nodes (nodes init-potential-value empty-element)
-  "returns a hashtable filled with all node-name and -value combinations of the given nodes as keys and with the init-potential-value as values"
+  "returns a hashtable filled with all var-name and -value combinations of the given nodes as keys and with the init-potential-value as values"
   (let* ((result-cpt-hashtable (make-hash-table :test #'equal))
 	 (cpt-lhs (build-cpt-lhs-for-given-nodes nodes empty-element))
 	 (cpt-rhs (make-array (length cpt-lhs) :initial-element init-potential-value))
-	 (vars (mapcar (lambda (x) (node-name x)) nodes)))
+	 (vars (mapcar (lambda (x) (node-var x)) nodes)))
     (dotimes (i (length cpt-lhs))
       (setf (gethash (elt cpt-lhs i) result-cpt-hashtable) (elt cpt-rhs i)))
     (make-cpt :hashtable result-cpt-hashtable :vars vars)))

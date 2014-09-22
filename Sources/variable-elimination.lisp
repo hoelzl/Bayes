@@ -23,39 +23,39 @@
     ;; return multiplication of all factors in S
     ))
 
-#+(or)(defun sum-out-vars (cpt vars-to-sum-out)
+#+-(defun sum-out-vars (cpt vars-to-sum-out)
   "implementation of SumOutVars on Darviche page 130"
-  (assert (not (null vars-to-sum-out)) () "You must define the variables that should be summed out")
-  ;; x = all vars of the cpt
-  (let ((x (cpt-vars cpt))  
-	(z cpts-to-eliminatevars-to-sum-out))
-    (let* ((y (set-difference x z :test #'equal)) ; removes z from x; y contains the nodes of the result after elimination
-	   (result-cpt (build-cpt-for-nodes y *neutral-addition-element* *empty-element*)))
-      (loop for key being the hash-keys of result-cpt
-	    using (hash-value value)
-	    do 
-	       (loop for base-key being the hash-keys of cpt
-		     using (hash-value base-value)
-		     do 
-			(when (equal 
-                               (length (intersection key base-key :test #'equal)) 
-                               (length key))
-			    ;; y instantiation is contained in x instatiation -> sum
-			    ;; key is contained in base-key
-                          (setf (gethash key result-cpt) (+ base-value (gethash key result-cpt))))
-			(when (eq key *empty-element*) 
-                          (setf (gethash key result-cpt) (+ base-value (gethash key result-cpt))))
-		     #+(or)(format t "The base-value associated with the base-key ~S is ~S~%" base-key base-value)
-		     )
-	    #+(or)(format t "The value associated with the key ~S is ~S~%" key value)
-	    )
-      ;; print the result
-      (loop for key being the hash-keys of result-cpt
-	    using (hash-value value)
-	    do
-	       (format t "The value associated with the key ~S is ~S~%" key value))
-      result-cpt)))
-
+  (if (null vars-to-sum-out) 
+      cpt ; return cpt if there are no vars to be summed out
+      (let ((x (cpt-vars cpt))  
+            (z cpts-to-eliminatevars-to-sum-out))
+        (let* ((y (set-difference x z :test #'equal)) ; removes z from x; y contains the nodes of the result after elimination
+               (result-cpt (build-cpt-for-nodes y *neutral-addition-element* *empty-element*)))
+          (loop for key being the hash-keys of result-cpt
+                using (hash-value value)
+                do 
+                   (loop for base-key being the hash-keys of cpt
+                         using (hash-value base-value)
+                         do 
+                            (when (equal 
+                                   (length (intersection key base-key :test #'equal)) 
+                                   (length key))
+                              ;; y instantiation is contained in x instatiation -> sum
+                              ;; key is contained in base-key
+                              (setf (gethash key result-cpt) (+ base-value (gethash key result-cpt))))
+                            (when (eq key *empty-element*) 
+                              (setf (gethash key result-cpt) (+ base-value (gethash key result-cpt))))
+                            #+(or)(format t "The base-value associated with the base-key ~S is ~S~%" base-key base-value)
+                         )
+                   #+(or)(format t "The value associated with the key ~S is ~S~%" key value)
+                )
+          ;; print the result
+          (loop for key being the hash-keys of result-cpt
+                using (hash-value value)
+                do
+                   (format t "The value associated with the key ~S is ~S~%" key value))
+          result-cpt))))
+  
 #+(or)(defun sum-out-vars (node-with-cpt-of-interest nodes-to-eliminate)
   "implementation of SumOutVars on Darviche page 130"
   (assert (not (null nodes-to-eliminate)) () "The Node to eliminate is empty")

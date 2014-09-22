@@ -11,6 +11,7 @@
 
 (defparameter *bayes-test-exports*
   '(#:*my-bayes-net*
+    #:*empty-element*
     #:*node-a*
     #:*node-b*
     #:*node-c*
@@ -19,7 +20,7 @@
     #:build-cpt-lhs-for-given-nodes
     #:build-cpt-for-nodes
     #:compute-node-value-index
-    #:cpt-contains-node
+    #:cpt-contains-node-p
     #:cpt-hashtable
     #:make-cpt
     #:node-build-cpt
@@ -37,7 +38,8 @@
     #:values-for-type))
 
 (defparameter *bayes-exports*
-  '(#:bayes-net    
+  '(#:bayes-net
+    #:cpt-vars
     #:discrete-node
     #:discrete-var
     #:make-bayes-net
@@ -58,10 +60,14 @@
     #:node-potential-dimensions
     #:node-probability
     #:node-type
+    #:node-var
     #:node-variables
     #:print-potential
     #:sum-out-vars
-    #:var))
+    #:var
+    #:var-cpt
+    #:var-name
+    #:var-node))
 )
 
 (defpackage #:bayes-implementation

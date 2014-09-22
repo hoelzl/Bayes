@@ -28,7 +28,7 @@
          (expected-result-for-n (list domain-values-of-n)))
     (is (equal expected-result-for-n (node-get-named-value-lists n)))
     (let* ((m (make-discrete-node :name 'M
-                                  :var (make-disrete-var :name 'M :domain-values '(6 7 8))
+                                  :var (make-discrete-var :name 'M :domain-values '(6 7 8))
                                   :potential-rhs '(0.2 0.3 0.4 0.1 0.5 0.2 0.7 0.9 0.1)
                                   :parents (list n)))
            (domain-values-of-m '((M 6) (M 7) (M 8)))

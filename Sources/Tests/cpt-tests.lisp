@@ -9,21 +9,21 @@
 
 (in-suite bayes-cpt-suite)
 
-(deftest test-cpt-contains-node ()
+(deftest test-cpt-contains-node-p ()
   (let ((cpt-d (node-cpt *test-node-d*))
         (cpt-a (node-cpt *test-node-a*)))
     ;; a contains a
-    (is (not (null (cpt-contains-node cpt-a *test-node-a*))))
+    (is (not (null (cpt-contains-node-p cpt-a *test-node-a*))))
     ;; d contains b c and d
-    (is (not (null (cpt-contains-node cpt-d *test-node-b*))))
-    (is (not (null (cpt-contains-node cpt-d *test-node-c*))))
-    (is (not (null (cpt-contains-node cpt-d *test-node-d*))))
+    (is (not (null (cpt-contains-node-p cpt-d *test-node-b*))))
+    (is (not (null (cpt-contains-node-p cpt-d *test-node-c*))))
+    (is (not (null (cpt-contains-node-p cpt-d *test-node-d*))))
     ;; d doesn't contain a or e
-    (is (null (cpt-contains-node cpt-d *test-node-a*)))
-    (is (null (cpt-contains-node cpt-d *test-node-e*)))))
+    (is (null (cpt-contains-node-p cpt-d *test-node-a*)))
+    (is (null (cpt-contains-node-p cpt-d *test-node-e*)))))
 
 (deftest test-build-cpt-lhs-for-given-nodes ()
-  (let ((result (build-cpt-lhs-for-given-nodes (list *test-node-a* *test-node-b* *test-node-c*)))
+  (let ((result (build-cpt-lhs-for-given-nodes (list *test-node-a* *test-node-b* *test-node-c*) *empty-element*))
         (expected-result '(((A T) (B T) (C T)) 
                            ((A T) (B T) (C nil)) 
                            ((A T) (B nil) (C T)) 
@@ -38,8 +38,12 @@
                 (is (member el-in-x y :test-not #'set-exclusive-or))))))
 
 (deftest test-build-cpt-for-nodes ()
-  (let ((cpt-for-nodes-bcd (build-cpt-for-nodes (list *test-node-b* *test-node-c* *test-node-d*) 0))
-        (expected-cpt-for-nodes-bcd (make-cpt :hashtable (make-hash-table :test #'equal) :vars '(B C D))))
+  (let ((cpt-for-nodes-bcd (build-cpt-for-nodes (list *test-node-b* *test-node-c* *test-node-d*) 0 *empty-element*))
+        (expected-cpt-for-nodes-bcd (make-cpt :hashtable (make-hash-table :test #'equal) 
+                                              :vars (list 
+                                                     (node-var *test-node-b*)
+                                                     (node-var *test-node-c*)
+                                                     (node-var *test-node-d*)))))
     (setf (gethash '((B T) (C T) (D T)) (cpt-hashtable expected-cpt-for-nodes-bcd)) 0)
     (setf (gethash '((B T) (C T) (D nil)) (cpt-hashtable expected-cpt-for-nodes-bcd)) 0)
     (setf (gethash '((B T) (C nil) (D T)) (cpt-hashtable expected-cpt-for-nodes-bcd)) 0)
