@@ -10,18 +10,20 @@
 (defparameter *neutral-addition-element* 0)
 (defparameter *neutral-multiplication-element* 1)
 
-#+(or)(defun ve-pr1 (bayes-net nodes-to-keep nodes-to-eliminate-in-order)
-  "Implementation of VE_PR1 of Darwiche on p. 134"
+(defun variable-elimination (bayes-net vars-to-eliminate-in-order)
+  "Implementation of VE_PR1 of Darwiche on p. 134. Returns the prior marginal Pr(vars-to-keep)"
   (let ((s (bn-cpts bayes-net)))
-    (dolist (node-to-eliminate nodes-to-eliminate-in-order)
-      (let ((cpts-containing-elimination-node (cpts-containing-node s node-to-eliminate)))
-        (let ((f (multiply-factors cpts-containing-elimination-node)))
-          (let ((f-at-i (sum-out-var f node-to-eliminate)))
+    (dolist (var-to-eliminate vars-to-eliminate-in-order)
+      (let ((cpts-containing-elimination-var (cpts-containing-var s var-to-eliminate)))
+        (let ((f (multiply-factors cpts-containing-elimination-var)))
+          (let ((f-at-i (sum-out-vars f (list var-to-eliminate))))
             ;; replace all factors in S that were multiplied before by f-at-i
-          
-            ))))
-    ;; return multiplication of all factors in S
-    ))
+            ;; removes original cpts that contain the var that was just eliminated 
+            (setf s (set-difference s cpts-containing-elimination-var :test #'equal))
+            ;; adding new factor to S
+            (setf s (cons f-at-i s))))))
+    ;; return multiplication of all remaining factors in S to get the prior marginal over the remaining vars
+    (multiply-factors s)))
 
 (defun sum-out-vars (cpt vars-to-sum-out)
   "implementation of SumOutVars on Darviche page 130"
@@ -55,7 +57,7 @@
                    #+(or)(format t "The value associated with the key ~S is ~S~%" key value)
                 )
           ;; print the result
-          (loop for key being the hash-keys of (cpt-hashtable result-cpt)
+          #+(or)(loop for key being the hash-keys of (cpt-hashtable result-cpt)
                 using (hash-value value)
                 do
                    (format t "The value associated with the key ~S is ~S~%" key value))
@@ -69,7 +71,7 @@
          (format t "Factor multiplication called without an argument. Returning nil.")
          nil)
         ((= (length cpts-to-multiply) 1)
-         (format t "Factor multiplication called with only one factor. Returning factor unchanged.")
+         #+(or)(format t "Factor multiplication called with only one factor. Returning factor unchanged.")
          (car cpts-to-multiply))
         (t ;; z = union-list of all vars from the cpts to be multiplied
          (let* ((z (get-union-of-vars-from-cpts cpts-to-multiply))

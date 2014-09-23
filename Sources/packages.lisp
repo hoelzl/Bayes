@@ -21,6 +21,7 @@
     #:build-cpt-for-nodes
     #:compute-node-value-index
     #:cpt-contains-node-p
+    #:cpts-containing-var
     #:cpt-hashtable
     #:cpt-probability
     #:make-cpt
@@ -40,6 +41,7 @@
 
 (defparameter *bayes-exports*
   '(#:bayes-net
+    #:bn-cpts
     #:cpt-vars
     #:discrete-node
     #:discrete-var
@@ -68,7 +70,8 @@
     #:var
     #:var-cpt
     #:var-name
-    #:var-node))
+    #:var-node
+    #:variable-elimination))
 )
 
 (defpackage #:bayes-implementation

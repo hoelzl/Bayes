@@ -12,8 +12,7 @@
                              :var (make-discrete-var :name 'A 
                                                      :domain-values '(t nil))
                              :kind :nature
-                             :potential-rhs '(0.6 0.4) 
-                             :name 'A))
+                             :potential-rhs '(0.6 0.4)))
 
 (defparameter *test-node-b* (make-discrete-node
                              :name "Sprinkler?"
@@ -41,7 +40,8 @@
 
 (defparameter *test-node-e* (make-discrete-node
                              :name "Slippery Road?"
-                             :var (make-discrete-var :name 'E :domain-values '(t nil))
+                             :var (make-discrete-var :name 'E 
+                                                     :domain-values '(t nil))
                              :kind :nature 
                              :potential-rhs '(0.7 0.3 0 1)
                              :parents (list *test-node-c*)))
@@ -51,4 +51,4 @@
                                 :nodes (list 
                                         *test-node-a* *test-node-b* 
                                         *test-node-c* *test-node-d*
-                                        *test-node-d*)))
+                                        *test-node-e*)))

@@ -75,3 +75,15 @@
     (is (< (abs (- (cpt-probability bn-multiplication '((A nil)(B nil)(C nil)(D nil)(E T))) 0)) *epsilon*))
     (is (< (abs (- (cpt-probability bn-multiplication '((A nil)(B nil)(C nil)(D nil)(E nil))) 0.0900)) *epsilon*))
 ))
+
+;; Example from darviche page 126
+(deftest test-variable-elimination ()
+  (let ((result-cpt (variable-elimination 
+                     *test-bayes-net* 
+                     (list (node-var *test-node-a*)
+                           (node-var *test-node-b*)
+                           (node-var *test-node-c*)))))
+    (is (< (abs (- (cpt-probability result-cpt '((D NIL) (E NIL))) 0.24093)) *epsilon*))
+    (is (< (abs (- (cpt-probability result-cpt '((D NIL) (E T))) 0.05957)) *epsilon*))
+    (is (< (abs (- (cpt-probability result-cpt '((D T) (E NIL))) 0.39507)) *epsilon*))
+    (is (< (abs (- (cpt-probability result-cpt '((D T) (E T))) 0.30443)) *epsilon*))))
