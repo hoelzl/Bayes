@@ -10,12 +10,29 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
 
 (defparameter *bayes-test-exports*
-  '(#:compute-node-value-index
+  '(#:*my-bayes-net*
+    #:*empty-element*
+    #:*node-a*
+    #:*node-b*
+    #:*node-c*
+    #:*node-d*
+    #:*node-e*
+    #:build-cpt-lhs-for-given-nodes
+    #:build-cpt-for-nodes
+    #:compute-node-value-index
+    #:cpt-contains-node-p
+    #:cpts-containing-var
+    #:cpt-hashtable
+    #:cpt-probability
+    #:make-cpt
+    #:node-build-cpt
+    #:node-get-named-value-lists
+    #:node-get-named-value-list
     #:node-potential-dimensions
+    #:node-value-index-table
     #:process-class-slots
     #:process-class-slot
-    #:process-class-options
-    #:node-value-index-table))
+    #:process-class-options))
 
 (defparameter *bayes-utilities-exports*
   '(#:define-class
@@ -23,51 +40,38 @@
     #:values-for-type))
 
 (defparameter *bayes-exports*
-  '(#:*my-bayes-net*
-    #:*node-a*
-    #:*node-b*
-    #:*node-c*
-    #:*node-d*
-    #:*node-e*    
-    #:bayes-net    
-    #:combinations    
-    #:constraint
+  '(#:bayes-net
+    #:bn-cpts
+    #:cpt-vars
     #:discrete-node
+    #:discrete-var
     #:make-bayes-net
     #:make-discrete-node
+    #:make-discrete-var
     #:make-node
+    #:make-var
+    #:multiply-factors
     #:node
-    #:node-build-cpt
     #:node-cardinality
     #:node-cpt
     #:node-discrete-p
     #:node-domain-values
-    #:node-get-named-value-lists
-    #:node-get-named-value-list
-    #:node-inverse-mapping
     #:node-kind
     #:node-name
     #:node-parents
-    #:node-potential
+    #:node-potential-rhs
     #:node-potential-dimensions
     #:node-probability
     #:node-type
-    #:node-values
+    #:node-var
     #:node-variables
-    #:permutations
-    #:potential
     #:print-potential
-    #:ra-variable
-    #:ra-variable-domain
-    #:ra-variable-name
-    #:ra-variable-named-domain-list
-    #:relation
-    #:relationalDatabase
-    #:scope
-    #:scope-permutations
-    #:scope-ra-variables
-    #:sum-out-var
-    #:tuple))
+    #:sum-out-vars
+    #:var
+    #:var-cpt
+    #:var-name
+    #:var-node
+    #:variable-elimination))
 )
 
 (defpackage #:bayes-implementation
